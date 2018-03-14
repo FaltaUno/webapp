@@ -1,4 +1,6 @@
 import { nextApp as next } from "./app/app"
+import { mars } from "./worlds/mars"
+import { jupiter } from "./worlds/jupiter"
 
 /*
 Namespace application services with function groups.
@@ -12,4 +14,12 @@ const app = {
   // other Hosting dependencies
 }
 
-export { app }
+// Mircoservices that make up the Greetings service
+// yarn deploy-functions
+const greetings = {
+  mars,
+  jupiter,
+  // other funcs
+}
+
+export { app, greetings }

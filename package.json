@@ -4,11 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "firebase": "^4.11.0",
     "firebase-admin": "^5.10.0",
     "firebase-functions": "^0.8.1",
-    "material-ui": "^1.0.0-beta.37",
-    "material-ui-icons": "^1.0.0-beta.36",
     "next": "^5.0.1-canary.14",
     "react": "^16.2.0",
     "react-dom": "^16.2.0"
@@ -26,9 +23,9 @@
   "scripts": {
     "fblogin": "yarn firebase login",
     "dev": "next \"src/app\"",
-    "preserve": "yarn build-public && yarn build-funcs && yarn build-app && yarn copy-deps && yarn install-deps",
+    "preserve":
+      "yarn build-public && yarn build-funcs && yarn build-app && yarn copy-deps && yarn install-deps",
     "serve": "NODE_ENV=production yarn firebase serve --only functions,hosting",
-    "serve-functions": "firebase serve --only functions",
     "deploy-app": "yarn firebase deploy --only hosting,functions:app",
     "deploy-functions": "yarn firebase deploy --only functions:greetings",
     "deploy-all": "yarn firebase deploy",
@@ -37,8 +34,6 @@
     "build-funcs": "babel \"src/functions\" --out-dir \"dist/functions\"",
     "build-app": "NODE_ENV=production next build \"src/app\"",
     "copy-deps": "cpx \"*{package.json,yarn.lock}\" \"dist/functions\"",
-    "install-deps": "cd \"dist/functions\" && yarn",
-    "shell": "yarn firebase experimental:functions:shell",
-    "logs": "yarn firebase functions:log"
+    "install-deps": "cd \"dist/functions\" && yarn"
   }
 }
