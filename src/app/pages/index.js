@@ -1,8 +1,8 @@
-import React from "react"
-import App from "../components/App"
+import Button from 'react-toolbox/lib/button/Button'
+import App from '../components/App';
 
 export default () => (
   <App>
-    <p>Index Page</p>
+    <Button raised primary>Hello</Button>
   </App>
 )
