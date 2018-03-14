@@ -1,19 +1,14 @@
 import React from "react"
-import NextLink from 'next/link'
 
-import AppBar from 'react-toolbox/lib/app_bar/AppBar'
-import Navigation from 'react-toolbox/lib/navigation/Navigation'
-import Link from 'react-toolbox/lib/link/Link'
+import Link from 'next/link'
 
 export default ({ pathname }) => (
-  <AppBar title='React Toolbox' leftIcon='menu'>
-    <Navigation type="horizontal" button>
-      <NextLink href="/">
-        <Link href="/" active label='Home' icon='inbox' />
-      </NextLink>
-      <NextLink href="/about">
-        <Link href="/about" label='About' icon='person' />
-      </NextLink>
-    </Navigation>
-  </AppBar>
+  <div>
+    <Link href="/">
+      <a>Home</a>
+    </Link>
+    <Link href="/matches">
+      <a>Matches</a>
+    </Link>
+  </div>
 )

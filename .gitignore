@@ -129,3 +129,4 @@ $RECYCLE.BIN/
 # End of https://www.gitignore.io/api/web,node,linux,macos,windows
 
 src/public/static
+src/app/config/development.js

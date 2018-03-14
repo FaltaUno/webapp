@@ -1,17 +1,17 @@
 {
   "hosting": {
-    "public": "dist/public",
-    "rewrites": [
-      {
-        "source": "**/**",
-        "function": "app-next"
-      }
-    ],
-    "predeploy": "yarn build-public"
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
   },
   "functions": {
     "source": "dist/functions",
-    "predeploy":
-      "yarn build-funcs && yarn build-app && yarn copy-deps && yarn install-deps"
+    "predeploy": "yarn build-funcs && yarn build-app && yarn copy-deps && yarn install-deps"
+  },
+  "database": {
+    "rules": "database.rules.json"
   }
 }

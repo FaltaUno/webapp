@@ -4,13 +4,14 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "firebase": "^4.11.0",
     "firebase-admin": "^5.10.0",
     "firebase-functions": "^0.8.1",
-    "fontfaceobserver": "^2.0.13",
+    "material-ui": "^1.0.0-beta.37",
+    "material-ui-icons": "^1.0.0-beta.36",
     "next": "^5.0.1-canary.14",
     "react": "^16.2.0",
-    "react-dom": "^16.2.0",
-    "react-toolbox": "^2.0.0-beta.12"
+    "react-dom": "^16.2.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.40",
@@ -20,15 +21,14 @@
     "cpx": "^1.5.0",
     "firebase-tools": "^3.17.6",
     "prettier": "^1.11.1",
-    "react-toolbox-themr": "^1.0.2",
     "rimraf": "^2.6.2"
   },
   "scripts": {
     "fblogin": "yarn firebase login",
-    "predev": "yarn toolbox",
     "dev": "next \"src/app\"",
     "preserve": "yarn build-public && yarn build-funcs && yarn build-app && yarn copy-deps && yarn install-deps",
     "serve": "NODE_ENV=production yarn firebase serve --only functions,hosting",
+    "serve-functions": "firebase serve --only functions",
     "deploy-app": "yarn firebase deploy --only hosting,functions:app",
     "deploy-functions": "yarn firebase deploy --only functions:greetings",
     "deploy-all": "yarn firebase deploy",
@@ -38,10 +38,7 @@
     "build-app": "NODE_ENV=production next build \"src/app\"",
     "copy-deps": "cpx \"*{package.json,yarn.lock}\" \"dist/functions\"",
     "install-deps": "cd \"dist/functions\" && yarn",
-    "toolbox": "react-toolbox-themr",
-    "posttoolbox": "cp -r src/app/static src/public"
-  },
-  "reactToolbox": {
-    "output": "src/app/static"
+    "shell": "yarn firebase experimental:functions:shell",
+    "logs": "yarn firebase functions:log"
   }
 }
