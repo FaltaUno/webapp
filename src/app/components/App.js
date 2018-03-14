@@ -4,17 +4,25 @@ import Header from "./Header"
 
 import ThemeProvider from 'react-toolbox/lib/ThemeProvider'
 import theme from '../static/theme'
+import Fonts from './Fonts';
 
-const App = ({ children }) => (
-  <ThemeProvider theme={theme}>
-    <main>
-      <Head>
-        <link href='/static/theme.css' rel='stylesheet' />
-      </Head>
-      <Header />
-      {children}
-    </main>
-  </ThemeProvider>
-)
 
-export default App
+export default class App extends React.Component {
+  componentDidMount() {
+    Fonts()
+  }
+
+  render() {
+    return (
+      <ThemeProvider theme={theme}>
+        <main>
+          <Head>
+            <link href='/static/theme.css' rel='stylesheet' />
+          </Head>
+          <Header />
+          {this.props.children}
+        </main>
+      </ThemeProvider>
+    )
+  }
+}

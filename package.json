@@ -6,6 +6,7 @@
   "dependencies": {
     "firebase-admin": "^5.10.0",
     "firebase-functions": "^0.8.1",
+    "fontfaceobserver": "^2.0.13",
     "next": "^5.0.1-canary.14",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
@@ -41,12 +42,6 @@
     "posttoolbox": "cp -r src/app/static src/public"
   },
   "reactToolbox": {
-    "include": [
-      "BUTTON",
-      "DATE_PICKER"
-    ],
-    "customProperties": {
-    },
     "output": "src/app/static"
   }
 }
