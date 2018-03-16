@@ -1,6 +1,4 @@
 import { nextApp as next } from "./app/app"
-import { mars } from "./worlds/mars"
-import { jupiter } from "./worlds/jupiter"
 
 /*
 Namespace application services with function groups.
