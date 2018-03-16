@@ -17,7 +17,6 @@
       "name": "Next: Node",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/next",
       "runtimeArgs": [
-        "src/app",
         "--inspect"
       ],
       "port": 9229,

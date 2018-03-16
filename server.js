@@ -1,11 +1,10 @@
 const express = require('express')
 const next = require('next')
 
-const routes = require('../functions/app/routes')
-const conf = require('./next.config')
+const routes = require('./lib/routes')
 
 const dev = process.env.NODE_ENV !== 'production'
-const app = next({ dev, conf })
+const app = next({ dev })
 //const handle = app.getRequestHandler()
 const handler = routes.getRequestHandler(app)
 
