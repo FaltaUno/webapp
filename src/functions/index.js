@@ -14,12 +14,4 @@ const app = {
   // other Hosting dependencies
 }
 
-// Mircoservices that make up the Greetings service
-// yarn deploy-functions
-const greetings = {
-  mars,
-  jupiter,
-  // other funcs
-}
-
-export { app, greetings }
+export { app }
