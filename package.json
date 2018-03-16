@@ -15,9 +15,13 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0"
   },
+  "devDependencies": {
+    "babel-plugin-inline-dotenv": "^1.1.2"
+  },
   "scripts": {
     "dev": "node server.js",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "deploy": "mv .gitignore .gitignore-ori && mv .gitignore-deploy .gitignore && now --public && mv .gitignore .gitignore-deploy && mv .gitignore-ori .gitignore"
   }
 }
