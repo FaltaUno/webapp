@@ -1,10 +1,10 @@
 import { loadDB } from "../lib/database";
 import { normalizeSnap } from "../lib/firebase";
 
-export const allMatches = async function() {
+export const allUsers = async function() {
   const db = await loadDB();
   const snap = await db
-    .child("matches")
+    .child("users")
     .orderByKey()
     .once("value");
   let matches = [];
@@ -14,8 +14,9 @@ export const allMatches = async function() {
   return matches;
 };
 
-export const getMatch = async function(key) {
+export const getUser = async function(key) {
   const db = await loadDB();
-  const snap = await db.child(`matches/${key}`).once("value");
+  const snap = await db.child(`users/${key}`).once("value");
   return normalizeSnap(snap);
 };
+

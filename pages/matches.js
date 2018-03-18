@@ -3,12 +3,12 @@ import Button from "material-ui/Button";
 
 import App from "../components/App";
 import { Link } from "../lib/routes";
-import { all } from "../services/matches";
+import { allMatches } from "../services/matches";
 
 
 export default class MatchesPage extends React.Component {
   static async getInitialProps({ req, query }) {
-    const matches = await all();
+    const matches = await allMatches();
     return { matches };
   }
   render() {
