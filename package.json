@@ -21,7 +21,7 @@
   "scripts": {
     "dev": "node server.js",
     "build": "next build",
-    "start": "next start",
+    "start": "NODE_ENV=production node server.js",
     "deploy": "mv .gitignore .gitignore-ori && mv .gitignore-deploy .gitignore && now --public && mv .gitignore .gitignore-deploy && mv .gitignore-ori .gitignore"
   }
 }
