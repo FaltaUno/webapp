@@ -11,7 +11,20 @@ export default class MatchesPage extends React.Component {
     const matches = await allMatches();
     return { matches };
   }
+
+  state = {
+    mounted: false
+  }
+
+  componentDidMount(){
+    this.setState({ mounted: true })
+  }
+
   render() {
+    if( ! this.state.mounted){
+      return (<div></div>)
+    }
+
     const { matches } = this.props;
     return (
       <App>

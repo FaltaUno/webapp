@@ -33,7 +33,20 @@ class MatchPage extends React.Component {
     const creator = await getUser(match.creatorKey);
     return { match, creator };
   }
+
+  state = {
+    mounted: false
+  }
+
+  componentDidMount(){
+    this.setState({ mounted: true })
+  }
+
   render() {
+    if( ! this.state.mounted){
+      return (<div></div>)
+    }
+    
     const { t, classes, match, creator } = this.props;
     const latlng = [match.location.lat, match.location.lng].join(",");
 
