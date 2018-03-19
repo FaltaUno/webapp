@@ -1,3 +1,4 @@
+import { compose, withProps } from "recompose";
 import React from "react";
 import {
   Avatar,
@@ -11,6 +12,8 @@ import {
   Typography,
   withStyles
 } from "material-ui";
+import { Marker } from "react-google-maps";
+import { geolocated } from "react-geolocated";
 import EditIcon from "material-ui-icons/Edit";
 
 import { Interpolate } from "react-i18next";
@@ -18,6 +21,8 @@ import { withI18next } from "../lib/withI18next";
 import { html } from "../lang/utils";
 
 import App from "../components/App";
+import GeoLocation from "../components/GeoLocation";
+import MapView from "../components/MapView";
 
 import { getMatch } from "../services/matches";
 import { getUser } from "../services/users";
@@ -54,36 +59,60 @@ class MatchPage extends React.Component {
 
     return (
       <App>
-        <Grid container justify="center" alignItems="center" className={classes.root}>
-          <Card>
-            <CardHeader
-              avatar={creatorAvatar}
-              title={cardTitle}
-              subheader={cardSubheader}
-            />
-            <CardMedia
-              image="/static/images/cards/contemplative-reptile.jpg"
-              title="Contemplative Reptile"
-            />
-            <CardContent>
-              <Typography gutterBottom variant="headline" component="h2">
-                {match.name}
-              </Typography>
-              <Typography component="p">{match.place}</Typography>
-            </CardContent>
-            <CardActions>
-              <Grid container justify="flex-end">
-                <Button className={classes.button}>{t("skipInvite")}</Button>
-                <Button
-                  className={classes.button}
-                  color="primary"
-                  variant="raised"
+        <Grid
+          container
+          justify="center"
+          alignItems="center"
+          className={classes.root}
+        >
+          <Grid item xs={6}>
+            <Card>
+              <CardHeader
+                avatar={creatorAvatar}
+                title={cardTitle}
+                subheader={cardSubheader}
+              />
+              <CardContent>
+                <Typography gutterBottom variant="headline" component="h2">
+                  {match.name}
+                </Typography>
+                <Typography component="p">{match.notes}</Typography>
+                <Grid
+                  container
+                  alignItems="center"
+                  justify="space-between"
+                  direction="row"
                 >
-                  {t("acceptInvite")}
-                </Button>
-              </Grid>
-            </CardActions>
-          </Card>
+                  <Grid item>
+                    <Typography component="p">{match.place}</Typography>
+                  </Grid>
+                  <Grid item>
+                    <Button color="primary">{t("howToGo")}</Button>
+                  </Grid>
+                </Grid>
+              </CardContent>
+              <MapView defaultCenter={match.location}>
+                <Marker position={match.location} />
+              </MapView>
+              <CardActions>
+                <Grid container justify="flex-end">
+                  <Grid item>
+                    <Button>
+                      {t("skipInvite")}
+                    </Button>
+                  </Grid>
+                  <Grid item>
+                    <Button
+                      color="primary"
+                      variant="raised"
+                    >
+                      {t("acceptInvite")}
+                    </Button>
+                  </Grid>
+                </Grid>
+              </CardActions>
+            </Card>
+          </Grid>
         </Grid>
       </App>
     );
@@ -93,11 +122,15 @@ class MatchPage extends React.Component {
 const styles = theme => ({
   root: {
     marginBottom: theme.spacing.unit * 2,
-    marginTop: theme.spacing.unit * 2,
-  },
-  button: {
-    margin: theme.spacing.unit
+    marginTop: theme.spacing.unit * 2
   }
 });
 
-export default withStyles(styles)(withI18next(["match"])(MatchPage));
+const geoConfig = {
+  positionOptions: {
+    enableHighAccuracy: false
+  },
+  userDecisionTimeout: 5000
+};
+
+export default compose(withStyles(styles), withI18next(["match"]))(MatchPage);

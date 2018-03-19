@@ -2,6 +2,7 @@
   "invitedYou": "{{user, strong}} invited you to a match",
   "willBePlayed": "The match is",
   "wasPlayed": "The match was played",
-  "acceptInvite": "Accept invitation",
+  "howToGo": "How to go?",
+  "acceptInvite": "Count with me!",
   "skipInvite": "Skip"
 }

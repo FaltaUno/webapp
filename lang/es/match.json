@@ -2,6 +2,7 @@
   "invitedYou": "{{user, strong}} te invitó a un partido",
   "willBePlayed": "Se juega el",
   "wasPlayed": "Se jugó el",
-  "acceptInvite": "Aceptar invitación",
+  "howToGo": "¿Cómo ir?",
+  "acceptInvite": "Juego",
   "skipInvite": "Omitir"
 }
