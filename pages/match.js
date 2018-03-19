@@ -64,7 +64,7 @@ class MatchPage extends React.Component {
           alignItems="center"
           className={classes.root}
         >
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={10} md={8} lg={6} xl={4}>
             <Card>
               <CardHeader
                 avatar={creatorAvatar}
