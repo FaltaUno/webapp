@@ -23,7 +23,7 @@ export default compose(
   withProps({
     googleMapURL,
     loadingElement: <div style={{ height: `100%` }} />,
-    containerElement: <div style={{ height: `300px` }} />,
+    containerElement: <div style={{ height: `200px` }} />,
     mapElement: <div style={{ height: `100%` }} />
   }),
   withScriptjs,

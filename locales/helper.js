@@ -7,4 +7,4 @@ module.exports.interpolation = {
     return value;
   }
 };
-module.exports.namespaces = ["match"];
+module.exports.namespaces = ["common", "match"];
