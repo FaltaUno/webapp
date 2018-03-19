@@ -13,15 +13,14 @@ import {
   withStyles
 } from "material-ui";
 import { Marker } from "react-google-maps";
-import { geolocated } from "react-geolocated";
+// import { geolocated } from "react-geolocated";
 import EditIcon from "material-ui-icons/Edit";
 
 import { Interpolate } from "react-i18next";
 import { withI18next } from "../lib/withI18next";
-import { html } from "../lang/utils";
+import { html } from "../locales/utils";
 
 import App from "../components/App";
-import GeoLocation from "../components/GeoLocation";
 import MapView from "../components/MapView";
 
 import { getMatch } from "../services/matches";

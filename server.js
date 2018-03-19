@@ -4,7 +4,7 @@ const next = require("next");
 const i18nextMiddleware = require("i18next-express-middleware");
 const Backend = require("i18next-node-fs-backend");
 const routes = require("./lib/routes");
-const i18nHelper = require("./lang/helper");
+const i18nHelper = require("./locales/helper");
 const { i18nInstance } = require("./lib/i18n");
 
 const dev = process.env.NODE_ENV !== "production";
@@ -16,8 +16,8 @@ const i18nConfig = {
   preload: ["en", "es"], // preload all langages
   ns: i18nHelper.namespaces, // need to preload all the namespaces
   backend: {
-    loadPath: path.join(__dirname, "/lang/{{lng}}/{{ns}}.json"),
-    addPath: path.join(__dirname, "/lang/{{lng}}/{{ns}}.missing.json")
+    loadPath: path.join(__dirname, "/locales/{{lng}}/{{ns}}.json"),
+    addPath: path.join(__dirname, "/locales/{{lng}}/{{ns}}.missing.json")
   },
   interpolation: i18nHelper.interpolation
 };
@@ -34,11 +34,11 @@ i18nInstance
         server.use(i18nextMiddleware.handle(i18nInstance));
 
         // serve locales for client
-        server.use("/lang", express.static(path.join(__dirname, "/lang")));
+        server.use("/locales", express.static(path.join(__dirname, "/locales")));
 
         // missing keys
         server.post(
-          "/lang/add/:lng/:ns",
+          "/locales/add/:lng/:ns",
           i18nextMiddleware.missingKeyHandler(i18nInstance)
         );
 
