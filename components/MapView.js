@@ -6,7 +6,7 @@ const googleMapURL = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=3.
 
 class MapView extends React.Component {
   static defaultProps = {
-    defaultZoom: 14,
+    defaultZoom: 15,
   }
 
   render() {

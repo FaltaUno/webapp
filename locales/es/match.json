@@ -3,6 +3,8 @@
   "willBePlayed": "Se juega el",
   "wasPlayed": "Se jugó el",
   "howToGo": "¿Cómo ir?",
-  "acceptInvite": "Juego",
-  "skipInvite": "Omitir"
+  "acceptInvite": "¡Juego!",
+  "remainingSpots": "Quedan {{spots}} lugares",
+  "informationLabel": "Información del partido",
+  "placeLabel": "Dirección"
 }

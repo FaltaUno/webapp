@@ -14,6 +14,7 @@ import {
 } from "material-ui";
 import { Marker } from "react-google-maps";
 // import { geolocated } from "react-geolocated";
+import DirectionsIcon from "material-ui-icons/Directions";
 import EditIcon from "material-ui-icons/Edit";
 
 import { Interpolate } from "react-i18next";
@@ -36,19 +37,21 @@ class MatchPage extends React.Component {
 
   state = {
     mounted: false
-  }
+  };
 
-  componentDidMount(){
-    this.setState({ mounted: true })
+  componentDidMount() {
+    this.setState({ mounted: true });
   }
 
   render() {
-    if( ! this.state.mounted){
-      return (<div></div>)
+    if (!this.state.mounted) {
+      return <div />;
     }
-    
+
     const { t, classes, match, creator } = this.props;
     const latlng = [match.location.lat, match.location.lng].join(",");
+
+    const mapHref = `http://maps.apple.com/?q=${latlng}`;
 
     const creatorAvatar = (
       <Avatar
@@ -71,58 +74,58 @@ class MatchPage extends React.Component {
 
     return (
       <App>
-        <Grid
-          container
-          justify="center"
-          alignItems="center"
-          className={classes.root}
-        >
+        <Grid container justify="center" alignItems="center">
           <Grid item xs={12} sm={10} md={8} lg={6} xl={4}>
-            <Card>
+            <Card className={classes.card}>
               <CardHeader
                 avatar={creatorAvatar}
                 title={cardTitle}
                 subheader={cardSubheader}
               />
               <CardContent>
-                <Typography gutterBottom variant="headline" component="h2">
-                  {match.name}
-                </Typography>
-                <Typography component="p">{match.notes}</Typography>
-                <Grid
-                  container
-                  alignItems="center"
-                  justify="space-between"
-                  direction="row"
-                >
+                <Grid container align="center" justify="space-between">
                   <Grid item>
-                    <Typography component="p">{match.place}</Typography>
+                    <Typography variant="display1">
+                      {t("remainingSpots", { spots: 2 })}
+                    </Typography>
                   </Grid>
                   <Grid item>
-                    <Button color="primary">{t("howToGo")}</Button>
+                    <Button color="primary" variant="raised" size="large">
+                      {t("acceptInvite")}
+                    </Button>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+            <Card className={classes.card}>
+              <CardHeader title={t("informationLabel")} align="center" />
+              <CardContent>
+                <Typography paragraph variant="title">
+                  {match.name}
+                </Typography>
+                <Typography paragraph>{match.notes}</Typography>
+              </CardContent>
+              <CardContent>
+                <Grid container justify="center">
+                  <Grid item xs sm>
+                    <Typography
+                      gutterBottom
+                      variant="headline"
+                      dangerouslySetInnerHTML={{ __html: t("placeLabel").replace(/\n/g, '<br/>') }}
+                    />
+                    <Typography paragraph>{match.place}</Typography>
+                  </Grid>
+                  <Grid item align="center" xs={4} sm={3} md={2}>
+                    <Typography variant="caption">¿Cómo llegar?</Typography>
+                    <Button href={mapHref} color="primary">
+                      <DirectionsIcon className={classes.directionIcon} />
+                    </Button>
                   </Grid>
                 </Grid>
               </CardContent>
               <MapView defaultCenter={match.location}>
                 <Marker position={match.location} />
               </MapView>
-              <CardActions>
-                <Grid container justify="flex-end">
-                  <Grid item>
-                    <Button>
-                      {t("skipInvite")}
-                    </Button>
-                  </Grid>
-                  <Grid item>
-                    <Button
-                      color="primary"
-                      variant="raised"
-                    >
-                      {t("acceptInvite")}
-                    </Button>
-                  </Grid>
-                </Grid>
-              </CardActions>
             </Card>
           </Grid>
         </Grid>
@@ -132,9 +135,23 @@ class MatchPage extends React.Component {
 }
 
 const styles = theme => ({
-  root: {
+  card: {
     marginBottom: theme.spacing.unit * 2,
     marginTop: theme.spacing.unit * 2
+  },
+  invitations: {
+    width: theme.spacing.unit * 10,
+    height: theme.spacing.unit * 10,
+    borderRadius: "100%",
+    backgroundColor: "#999",
+    textAlign: "center",
+    verticalAlign: "middle"
+  },
+  directionIcon: {
+    fontSize: 44
+  },
+  howToGoContainer: {
+    textAlign: "right"
   }
 });
 

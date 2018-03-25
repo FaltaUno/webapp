@@ -3,6 +3,8 @@
   "willBePlayed": "The match is",
   "wasPlayed": "The match was played",
   "howToGo": "How to go?",
-  "acceptInvite": "Count with me!",
-  "skipInvite": "Skip"
+  "acceptInvite": "Join!",
+  "remainingSpots": "There are {{spots}} spots left",
+  "informationLabel": "Match info",
+  "placeLabel": "Address"
 }
