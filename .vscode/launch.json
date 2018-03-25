@@ -9,15 +9,14 @@
       "request": "attach",
       "processId": "${command:PickProcess}",
       "name": "Next: Node",
-      "port": 9229,
-      "console": "integratedTerminal"
+      "port": 9229
     },
     {
       "type": "chrome",
-      "request": "launch",
+      "request": "attach",
       "name": "Next: Chrome",
-      "url": "http://localhost:3000",
-      "webRoot": "${workspaceRoot}"
+      "port": 9222,
+      "webRoot": "${workspaceFolder}"
     }
   ],
   "compounds": [
