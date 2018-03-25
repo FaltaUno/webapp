@@ -1,10 +1,10 @@
 import { loadDB, loadServerValue } from "../lib/database";
 
-export const joinMatch = async function(match, userKey) {
+export const requestInvite = async function(match, userKey) {
   const db = loadDB();
   const ServerValue = loadServerValue();
-  const requestKey = await db.child(`requests`).push().key;
-  const request = {
+  const inviteKey = await db.child(`invites`).push().key;
+  const invite = {
     createdAt: ServerValue.TIMESTAMP,
     matchKey: match.key,
     userKey: userKey,
@@ -16,8 +16,8 @@ export const joinMatch = async function(match, userKey) {
   };
 
   let updates = {};
-  updates[`requests/${requestKey}`] = request;
-  updates[`matches/${match.key}/usersRequests/${userKey}`] = { requestKey };
-  updates[`users/${userKey}/matchesRequests/${match.key}`] = { requestKey };
+  updates[`invites/${inviteKey}`] = invite;
+  updates[`matches/${match.key}/usersInvites/${userKey}`] = { inviteKey };
+  updates[`users/${userKey}/matchesInvites/${match.key}`] = { inviteKey };
   return await db.update(updates);
 };

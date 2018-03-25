@@ -3,7 +3,7 @@
   "willBePlayed": "The match is",
   "wasPlayed": "The match was played",
   "howToGo": "How to go?",
-  "joinRequest": "Join!",
+  "requestInvite": "Join!",
   "remainingSpots": "There are {{spots}} spots left",
   "informationLabel": "Match info",
   "placeLabel": "Address"

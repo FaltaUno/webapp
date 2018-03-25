@@ -23,6 +23,10 @@ export const getMatch = async function(key) {
   return normalizeSnap(snap);
 };
 
-export const onMatchChanged = async function(key, callback) {
-  return getMatchRef(key).on("child_changed", callback)
+export const onMatchChanged = async function(match, callback) {
+  return getMatchRef(match.key).on("child_changed", child => {
+    const updatedMatch = Object.assign({}, match);
+    updatedMatch[child.key] = child.val();
+    return callback(updatedMatch)
+  })
 };

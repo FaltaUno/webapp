@@ -24,7 +24,7 @@ import { html } from "../locales/utils";
 import App from "../components/App";
 import MapView from "../components/MapView";
 
-import { joinMatch } from "../services/invites";
+import { requestInvite } from "../services/invites";
 import { getMatch, onMatchChanged } from "../services/matches";
 import { getUser } from "../services/users";
 import Moment from "react-moment";
@@ -49,9 +49,8 @@ class MatchPage extends React.Component {
 
   componentDidMount() {
     this.setState({ mounted: true });
-    onMatchChanged(this.state.match.key, child => {
-      const match = Object.assign({}, this.state.match);
-      match[child.key] = child.val();
+    onMatchChanged(this.state.match, match => {
+      console.log('UPDATED', match)
       this.setState({ match });
     });
   }
@@ -112,9 +111,9 @@ class MatchPage extends React.Component {
                       color="primary"
                       variant="raised"
                       size="large"
-                      onClick={() => joinMatch(match, stubUserKey)}
+                      onClick={() => requestInvite(match, stubUserKey)}
                     >
-                      {t("joinRequest")}
+                      {t("requestInvite")}
                     </Button>
                   </Grid>
                 </Grid>
