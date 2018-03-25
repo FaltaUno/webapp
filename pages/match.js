@@ -24,23 +24,31 @@ import { html } from "../locales/utils";
 import App from "../components/App";
 import MapView from "../components/MapView";
 
-import { getMatch } from "../services/matches";
+import { joinMatch } from "../services/invites";
+import { getMatch, onMatchChanged} from "../services/matches";
 import { getUser } from "../services/users";
 import Moment from "react-moment";
 
 class MatchPage extends React.Component {
   static async getInitialProps({ req, query }) {
+    const mounted = false
     const match = await getMatch(query.key);
     const creator = await getUser(match.creatorKey);
-    return { match, creator };
+    return { initialState: { mounted, match, creator } };
   }
 
-  state = {
-    mounted: false
-  };
+  constructor (props) {
+      super(props)
+      this.state = props.initialState
+  }
 
   componentDidMount() {
     this.setState({ mounted: true });
+    onMatchChanged(this.state.match.key, (child) => {
+      const match = Object.assign({}, this.state.match)
+      match[child.key] = child.val()
+      this.setState({ match })
+    })
   }
 
   render() {
@@ -48,7 +56,10 @@ class MatchPage extends React.Component {
       return <div />;
     }
 
-    const { t, classes, match, creator } = this.props;
+    const stubUserKey = "Ob0YuT27SXNrX24MmiUyu3RR2Wp1"; // Nahuel Sotelo ARG
+
+    const { t, classes } = this.props;
+    const { match, creator } = this.state
     const latlng = [match.location.lat, match.location.lng].join(",");
 
     const mapHref = `http://maps.apple.com/?q=${latlng}`;
@@ -72,6 +83,8 @@ class MatchPage extends React.Component {
       </div>
     );
 
+    const spots = match.playersNeeded;
+
     return (
       <App>
         <Grid container justify="center" alignItems="center">
@@ -86,12 +99,17 @@ class MatchPage extends React.Component {
                 <Grid container align="center" justify="space-between">
                   <Grid item>
                     <Typography variant="display1">
-                      {t("remainingSpots", { spots: 2 })}
+                      {t("remainingSpots", { spots })}
                     </Typography>
                   </Grid>
                   <Grid item>
-                    <Button color="primary" variant="raised" size="large">
-                      {t("acceptInvite")}
+                    <Button
+                      color="primary"
+                      variant="raised"
+                      size="large"
+                      onClick={() => joinMatch(match, stubUserKey)}
+                    >
+                      {t("joinRequest")}
                     </Button>
                   </Grid>
                 </Grid>
@@ -111,7 +129,9 @@ class MatchPage extends React.Component {
                     <Typography
                       gutterBottom
                       variant="headline"
-                      dangerouslySetInnerHTML={{ __html: t("placeLabel").replace(/\n/g, '<br/>') }}
+                      dangerouslySetInnerHTML={{
+                        __html: t("placeLabel").replace(/\n/g, "<br/>")
+                      }}
                     />
                     <Typography paragraph>{match.place}</Typography>
                   </Grid>
