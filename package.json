@@ -37,6 +37,7 @@
       "mv .gitignore .gitignore-ori && mv .gitignore-deploy .gitignore",
     "deploy": "now --public",
     "postdeploy":
-      "mv .gitignore .gitignore-deploy && mv .gitignore-ori .gitignore"
+      "mv .gitignore .gitignore-deploy && mv .gitignore-ori .gitignore",
+    "clean": "rm -rf ./.next"
   }
 }

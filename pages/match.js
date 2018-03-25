@@ -21,7 +21,7 @@ import { Interpolate } from "react-i18next";
 import { withI18next } from "../lib/withI18next";
 import { html } from "../locales/utils";
 
-import App from "../components/App";
+import withApp from "../hocs/withApp";
 import MapView from "../components/MapView";
 
 import { requestInvite } from "../services/invites";
@@ -90,7 +90,7 @@ class MatchPage extends React.Component {
     const spots = match.playersNeeded;
 
     return (
-      <App>
+      <div>
         <Grid container justify="center" alignItems="center">
           <Grid item xs={12} sm={10} md={8} lg={6} xl={4}>
             <Card className={classes.card}>
@@ -153,7 +153,7 @@ class MatchPage extends React.Component {
             </Card>
           </Grid>
         </Grid>
-      </App>
+      </div>
     );
   }
 }
@@ -186,4 +186,4 @@ const geoConfig = {
   userDecisionTimeout: 5000
 };
 
-export default compose(withStyles(styles), withI18next(["match"]))(MatchPage);
+export default compose(withApp, withStyles(styles), withI18next(["match"]))(MatchPage);

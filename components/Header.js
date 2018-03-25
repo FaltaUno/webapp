@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 
-export default ({ pathname }) => (
+export default ({ pathname, user }) => (
   <header>
     {/*
       <Link href="/">

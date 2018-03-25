@@ -1,12 +1,13 @@
+import { compose } from "recompose";
+
 import React from "react";
 import Button from "material-ui/Button";
 
-import App from "../components/App";
+import withApp from "../hocs/withApp";
 import { Link } from "../lib/routes";
 import { allMatches } from "../services/matches";
 
-
-export default class MatchesPage extends React.Component {
+class MatchesPage extends React.Component {
   static async getInitialProps({ req, query }) {
     const matches = await allMatches();
     return { matches };
@@ -14,20 +15,20 @@ export default class MatchesPage extends React.Component {
 
   state = {
     mounted: false
-  }
+  };
 
-  componentDidMount(){
-    this.setState({ mounted: true })
+  componentDidMount() {
+    this.setState({ mounted: true });
   }
 
   render() {
-    if( ! this.state.mounted){
-      return (<div></div>)
+    if (!this.state.mounted) {
+      return <div />;
     }
 
     const { matches } = this.props;
     return (
-      <App>
+      <div>
         <p>About Page w/firebase-admin</p>
         <p>{matches.length}</p>
         {matches.map(match => (
@@ -35,7 +36,9 @@ export default class MatchesPage extends React.Component {
             <Button>{match.name}</Button>
           </Link>
         ))}
-      </App>
+      </div>
     );
   }
 }
+
+export default compose(withApp)(MatchesPage);
