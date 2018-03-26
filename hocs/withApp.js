@@ -33,14 +33,14 @@ const withApp = PageComponent =>
 
     componentDidMount() {
       onAuthStateChanged(async firebaseUser => {
-        if (!firebaseUser || firebaseUser.isAnonymous) {
-          signInAnonymously();
-          return this.setState({ user: firebaseUser });
+        if (firebaseUser && ! firebaseUser.isAnonymous) {
+          // Get the database info
+          let user = await parseUser(firebaseUser);
+          return this.setState({ user });
         }
 
-        // Get the database info
-        let user = await parseUser(firebaseUser);
-        return this.setState({ user });
+        signInAnonymously();
+        return this.setState({ user: firebaseUser });
       });
 
       this.setState({ mounted: true });

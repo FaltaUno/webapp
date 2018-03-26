@@ -4,6 +4,7 @@
   "wasPlayed": "Se jugó el",
   "howToGetThere": "¿Cómo llegar?",
   "requestInvite": "¡Juego!",
+  "requestInviteSent": "Esperando respuesta",
   "remainingSpots": "Quedan {{spots}} lugares",
   "informationLabel": "Información del partido",
   "placeLabel": "Dirección"

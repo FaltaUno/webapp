@@ -10,7 +10,8 @@ import {
   CardMedia,
   Grid,
   Typography,
-  withStyles
+  withStyles,
+  CircularProgress
 } from "material-ui";
 import { Marker } from "react-google-maps";
 // import { geolocated } from "react-geolocated";
@@ -22,7 +23,7 @@ import { html, nl2br } from "../lib/utils";
 import withApp from "../hocs/withApp";
 import MapView from "../components/MapView";
 
-import { requestInvite } from "../services/invites";
+import { requestInvite, getInvites } from "../services/invites";
 import { getMatch, onMatchChanged } from "../services/matches";
 import { getUser } from "../services/users";
 import Moment from "react-moment";
@@ -31,10 +32,20 @@ class MatchPage extends React.Component {
   static async getInitialProps({ req, query }) {
     const match = await getMatch(query.key);
     const creator = await getUser(match.creatorKey);
+
+    const invitesKeys = [];
+    Object.keys(match.usersInvites).forEach(userKey => {
+      let userInvite = match.usersInvites[userKey];
+      invitesKeys.push(userInvite.inviteKey);
+    });
+
+    const allInvites = await getInvites(invitesKeys);
+    const invites = allInvites.filter(invite => invite.approved === true);
     return {
       initialState: {
         match,
-        creator
+        creator,
+        invites
       }
     };
   }
@@ -51,8 +62,8 @@ class MatchPage extends React.Component {
   }
 
   render() {
-    const { t, classes } = this.props;
-    const { match, creator } = this.state;
+    const { auth, classes, t } = this.props;
+    const { match, creator, invites } = this.state;
     const latlng = [match.location.lat, match.location.lng].join(",");
 
     const mapHref = `http://maps.apple.com/?q=${latlng}`;
@@ -76,7 +87,35 @@ class MatchPage extends React.Component {
       </div>
     );
 
-    const spots = match.playersNeeded;
+    const spots = match.playersNeeded - invites.length;
+
+    let requestInviteButton = (
+      <Button color="default" variant="raised" size="large">
+        <CircularProgress color="inherit" size={24} />
+      </Button>
+    );
+
+    if (auth && (auth.key || auth.isAnonymous)) {
+      requestInviteButton = (
+        <Button color="primary" variant="raised" size="large" disabled>
+          {t("requestInviteSent")}
+        </Button>
+      );
+
+      const userDidNotRequest = !match.usersInvites[auth.key];
+      if (auth.isAnonymous || userDidNotRequest) {
+        requestInviteButton = (
+          <Button
+            color="primary"
+            variant="raised"
+            size="large"
+            onClick={() => this.handleRequestInvite(match)}
+          >
+            {t("requestInvite")}
+          </Button>
+        );
+      }
+    }
 
     return (
       <div>
@@ -95,16 +134,7 @@ class MatchPage extends React.Component {
                       {t("remainingSpots", { spots })}
                     </Typography>
                   </Grid>
-                  <Grid item>
-                    <Button
-                      color="primary"
-                      variant="raised"
-                      size="large"
-                      onClick={() => this.handleRequestInvite(match)}
-                    >
-                      {t("requestInvite")}
-                    </Button>
-                  </Grid>
+                  <Grid item>{requestInviteButton}</Grid>
                 </Grid>
               </CardContent>
             </Card>
@@ -125,7 +155,9 @@ class MatchPage extends React.Component {
                     <Typography paragraph>{match.place}</Typography>
                   </Grid>
                   <Grid item align="center" xs={4} sm={3} md={2}>
-                    <Typography variant="caption">{t('howToGetThere')}</Typography>
+                    <Typography variant="caption">
+                      {t("howToGetThere")}
+                    </Typography>
                     <Button href={mapHref} color="primary">
                       <DirectionsIcon className={classes.directionIcon} />
                     </Button>
@@ -144,16 +176,19 @@ class MatchPage extends React.Component {
 
   handleRequestInvite(match) {
     if (this.props.auth.isAnonymous) {
-       return this.props.doLogin((auth) => {
-         this.doRequestInvite(match, auth)
-       });
+      return this.props.doLogin(auth => {
+        this.doRequestInvite(match, auth);
+      });
     }
 
-    return this.doRequestInvite(match, this.props.auth)
+    return this.doRequestInvite(match, this.props.auth);
   }
 
-  doRequestInvite(match, user){
-    return requestInvite(match, user)
+  doRequestInvite(match, user) {
+    const userDidNotRequest = !match.usersInvites[user.key];
+    if (userDidNotRequest) {
+      return requestInvite(match, user);
+    }
   }
 }
 
