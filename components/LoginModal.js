@@ -74,10 +74,6 @@ class LoginModal extends React.Component {
     // -- Custom permissions -- //
     // 'user_friends',
     provider.addScope("user_birthday");
-    console.log(process.env.FACEBOOK_REDIRECT_URI);
-    // provider.setCustomParameters({
-    //   redirect_uri: process.env.FACEBOOK_REDIRECT_URI
-    // });
     auth.useDeviceLanguage();
     auth
       .signInWithPopup(provider)
@@ -87,6 +83,7 @@ class LoginModal extends React.Component {
         // The signed-in user info.
         var user = result.user;
         // ...
+        console.log(user);
       })
       .catch(function(error) {
         // Handle Errors here.
@@ -97,6 +94,7 @@ class LoginModal extends React.Component {
         // The firebase.auth.AuthCredential type that was used.
         var credential = error.credential;
         // ...
+        console.error(error);
       });
   }
 }

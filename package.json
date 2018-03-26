@@ -27,8 +27,7 @@
     "recompose": "^0.26.0"
   },
   "devDependencies": {
-    "babel-plugin-inline-dotenv": "^1.1.2",
-    "express-vhost": "^0.2.0"
+    "babel-plugin-inline-dotenv": "^1.1.2"
   },
   "scripts": {
     "dev": "node server.js",
