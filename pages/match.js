@@ -144,8 +144,16 @@ class MatchPage extends React.Component {
 
   handleRequestInvite(match) {
     if (this.props.auth.isAnonymous) {
-      this.props.doLogin();
+       return this.props.doLogin((auth) => {
+         this.doRequestInvite(match, auth)
+       });
     }
+
+    return this.doRequestInvite(match, this.props.auth)
+  }
+
+  doRequestInvite(match, user){
+    return requestInvite(match, user)
   }
 }
 

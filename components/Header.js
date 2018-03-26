@@ -3,20 +3,29 @@ import { compose } from "recompose";
 import React from "react";
 import Link from "next/link";
 
-import { AppBar, Button, Toolbar, Typography, withStyles } from "material-ui";
+import {
+  AppBar,
+  Avatar,
+  Button,
+  Grid,
+  Toolbar,
+  Typography,
+  withStyles
+} from "material-ui";
 import { withI18next } from "../hocs/withI18next";
 
 import LoginModal from "./LoginModal";
 
 class Header extends React.Component {
   static defaultProps = {
-    showLogin: false
+    showLogin: false,
+    onLoggedUser: () => {},
+    onLoginSuccess: () => {}
   };
 
   state = {
     isDialogOpen: false
   };
-
 
   componentWillReceiveProps(nextProps) {
     // You don't have to do this check first, but it can help prevent an unneeded render
@@ -26,7 +35,14 @@ class Header extends React.Component {
   }
 
   render() {
-    const { auth, classes, pathname, t } = this.props;
+    const {
+      auth,
+      classes,
+      onLoggedUser,
+      onLoginSuccess,
+      pathname,
+      t
+    } = this.props;
 
     if (auth.isAnonymous) {
       return (
@@ -41,18 +57,33 @@ class Header extends React.Component {
           <LoginModal
             open={this.state.isDialogOpen}
             onClose={() => this.closeDialog()}
+            onLoggedUser={user => onLoggedUser(user)}
+            onLoginSuccess={user => onLoginSuccess(user)}
           />
         </div>
       );
     }
     return (
-      <header className={classes.root}>
+      <div>
+        <Grid
+          container
+          justify="flex-end"
+          alignItems="center"
+          className={classes.loggedUser}
+        >
+          <Grid item>
+            <Typography variant="button">{auth.displayName}</Typography>
+          </Grid>
+          <Grid item>
+            <Avatar alt={auth.displayName} src={auth.photoURL} />
+          </Grid>
+        </Grid>
         {/*
-      <Link href="/">
-       <a className={pathname === "/" ? "is-active" : ""}>Home</a>
-    </Link>
-    */}
-      </header>
+          <Link href="/">
+          <a className={pathname === "/" ? "is-active" : ""}>Home</a>
+        </Link>
+        */}
+      </div>
     );
   }
 
@@ -71,9 +102,10 @@ const styles = theme => ({
     top: theme.spacing.unit,
     right: theme.spacing.unit
   },
-  menuButton: {
-    marginLeft: -12,
-    marginRight: 20
+  loggedUser: {
+    position: "fixed",
+    top: theme.spacing.unit,
+    right: theme.spacing.unit * 2
   }
 });
 

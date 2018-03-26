@@ -9,7 +9,7 @@ import lightGreen from "material-ui/colors/lightGreen";
 import purple from "material-ui/colors/purple";
 
 import Header from "../components/Header";
-import { onAuthStateChanged, signInAnonymously } from "../lib/auth";
+import { onAuthStateChanged, signInAnonymously, parseUser } from "../lib/auth";
 
 const theme = createMuiTheme({
   palette: {
@@ -28,23 +28,21 @@ const withApp = PageComponent =>
       mounted: false,
       user: {},
       showLogin: false,
+      onLoginSuccess: () => {}
     };
 
     componentDidMount() {
-      onAuthStateChanged(user => {
-        // if (user) {
-        //   // User is signed in.
-        //   var isAnonymous = user.isAnonymous;
-        //   var uid = user.uid;
-        //   // ...
-        // } else {
-        //   // User is signed out.
-        //   // ...
-        // }
-        this.setState({ user });
+      onAuthStateChanged(async firebaseUser => {
+        if (!firebaseUser || firebaseUser.isAnonymous) {
+          signInAnonymously();
+          return this.setState({ user: firebaseUser });
+        }
+
+        // Get the database info
+        let user = await parseUser(firebaseUser);
+        return this.setState({ user });
       });
 
-      signInAnonymously();
       this.setState({ mounted: true });
     }
     render() {
@@ -60,14 +58,33 @@ const withApp = PageComponent =>
               content="width=device-width,initial-scale=1,shrink-to-fit=no"
             />
           </Head>
-          <Header auth={this.state.user} showLogin={this.state.showLogin}/>
-          <PageComponent auth={this.state.user} doLogin={(callback)=>{ this.handleDoLogin(callback) }} {...this.props} />
+          <Header
+            auth={this.state.user}
+            showLogin={this.state.showLogin}
+            onLoggedUser={user => this.handleLoggedUser(user)}
+            onLoginSuccess={user => this.handleLoginSuccess(user)}
+          />
+          <PageComponent
+            auth={this.state.user}
+            doLogin={onLoginSuccess => {
+              this.handleDoLogin(onLoginSuccess);
+            }}
+            {...this.props}
+          />
         </MuiThemeProvider>
       );
     }
 
-    handleDoLogin(callback){
-      this.setState({ showLogin: true })
+    handleDoLogin(onLoginSuccess) {
+      this.setState({ showLogin: true, onLoginSuccess });
+    }
+
+    handleLoggedUser(user) {
+      this.setState({ user });
+    }
+
+    handleLoginSuccess(user) {
+      this.state.onLoginSuccess(user);
     }
   };
 

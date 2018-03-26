@@ -18,8 +18,9 @@ import EmailIcon from "mdi-material-ui/Email";
 import WhatsappIcon from "mdi-material-ui/Whatsapp";
 
 import { withI18next } from "../hocs/withI18next";
-import { loadAuth, loadFacebookAuthProvider } from "../lib/auth";
+import { loadAuth, loadFacebookAuthProvider, parseUser } from "../lib/auth";
 import { nl2br } from "../lib/utils";
+import { loadDB, normalizeSnap } from "../lib/database";
 
 const Transition = props => {
   return <Slide direction="up" {...props} />;
@@ -28,7 +29,9 @@ const Transition = props => {
 class LoginModal extends React.Component {
   static defaultProps = {
     open: false,
-    onClose: () => {}
+    onClose: () => {},
+    onLoggedUser: () => {},
+    onLoginSuccess: () => {}
   };
   render() {
     const { t } = this.props;
@@ -53,7 +56,9 @@ class LoginModal extends React.Component {
               <Button
                 color="primary"
                 variant="raised"
-                onClick={this.handleFacebookLogin}
+                onClick={() => {
+                  this.handleFacebookLogin();
+                }}
               >
                 <FacebookIcon />
                 {t("login.facebookButton")}
@@ -66,26 +71,32 @@ class LoginModal extends React.Component {
   }
 
   handleFacebookLogin() {
-    let auth = loadAuth();
-    let provider = loadFacebookAuthProvider();
+    // TODO: refactor in services
+    const auth = loadAuth();
+    const provider = loadFacebookAuthProvider();
     // -- Default Expo Permissions -- //
     // 'public_profile',
     // 'email',
     // -- Custom permissions -- //
     // 'user_friends',
+
     provider.addScope("user_birthday");
     auth.useDeviceLanguage();
     auth
       .signInWithPopup(provider)
-      .then(function(result) {
+      .then(result => {
         // This gives you a Facebook Access Token. You can use it to access the Facebook API.
-        var token = result.credential.accessToken;
+        const token = result.credential.accessToken;
         // The signed-in user info.
-        var user = result.user;
-        // ...
-        console.log(user);
+        const firebaseUser = result.user;
+        return firebaseUser;
       })
-      .catch(function(error) {
+      .then(async firebaseUser => {
+        const user = await parseUser(firebaseUser);
+        this.props.onLoggedUser(user);
+        this.props.onLoginSuccess(user)
+      })
+      .catch(error => {
         // Handle Errors here.
         var errorCode = error.code;
         var errorMessage = error.message;
