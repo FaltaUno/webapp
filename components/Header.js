@@ -44,6 +44,10 @@ class Header extends React.Component {
       t
     } = this.props;
 
+    if(! auth){
+      return false
+    }
+
     if (auth.isAnonymous) {
       return (
         <div>
