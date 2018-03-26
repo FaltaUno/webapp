@@ -2,7 +2,7 @@
   "invitedYou": "{{user, strong}} invited you to a match",
   "willBePlayed": "The match is",
   "wasPlayed": "The match was played",
-  "howToGo": "How to go?",
+  "howToGetThere": "How to get there?",
   "requestInvite": "Join!",
   "remainingSpots": "There are {{spots}} spots left",
   "informationLabel": "Match info",

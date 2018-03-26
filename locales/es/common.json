@@ -1,5 +1,14 @@
 {
   "app": {
     "name": "Falta Uno!"
+  },
+  "login": {
+    "buttonLabel": "Iniciar sesión",
+    "modalTitle": "Ingresá con tu cuenta para poder unirte a este partido",
+    "modalDescription":
+      "Para poder confirmarte en el equipo, el administrador del partido precisa una manera de contactarte.\nSeleccioná la que te resulete más cómoda: Facebook, Email o Whatsapp.",
+    "facebookButton": "Ingresar con Facebook",
+    "emailButton": "Email (magic link)",
+    "whatsappButton": "Whatsapp (verificación)"
   }
 }

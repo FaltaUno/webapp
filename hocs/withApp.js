@@ -25,7 +25,9 @@ const withApp = PageComponent =>
     }
 
     state = {
-      user: {}
+      mounted: false,
+      user: {},
+      showLogin: false,
     };
 
     componentDidMount() {
@@ -43,21 +45,29 @@ const withApp = PageComponent =>
       });
 
       signInAnonymously();
+      this.setState({ mounted: true });
     }
     render() {
+      if (!this.state.mounted) {
+        return <div />;
+      }
       return (
         <MuiThemeProvider theme={theme}>
+          <CssBaseline />
           <Head>
-            <CssBaseline />
             <meta
               name="viewport"
               content="width=device-width,initial-scale=1,shrink-to-fit=no"
             />
           </Head>
-          <Header user={this.state.user} />
-          <PageComponent user={this.state.user} {...this.props} />
+          <Header auth={this.state.user} showLogin={this.state.showLogin}/>
+          <PageComponent auth={this.state.user} doLogin={(callback)=>{ this.handleDoLogin(callback) }} {...this.props} />
         </MuiThemeProvider>
       );
+    }
+
+    handleDoLogin(callback){
+      this.setState({ showLogin: true })
     }
   };
 

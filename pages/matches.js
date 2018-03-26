@@ -13,19 +13,7 @@ class MatchesPage extends React.Component {
     return { matches };
   }
 
-  state = {
-    mounted: false
-  };
-
-  componentDidMount() {
-    this.setState({ mounted: true });
-  }
-
   render() {
-    if (!this.state.mounted) {
-      return <div />;
-    }
-
     const { matches } = this.props;
     return (
       <div>

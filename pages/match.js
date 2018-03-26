@@ -14,12 +14,10 @@ import {
 } from "material-ui";
 import { Marker } from "react-google-maps";
 // import { geolocated } from "react-geolocated";
-import DirectionsIcon from "material-ui-icons/Directions";
-import EditIcon from "material-ui-icons/Edit";
+import DirectionsIcon from "mdi-material-ui/Directions";
 
-import { Interpolate } from "react-i18next";
-import { withI18next } from "../lib/withI18next";
-import { html } from "../locales/utils";
+import { withI18next } from "../hocs/withI18next";
+import { html, nl2br } from "../lib/utils";
 
 import withApp from "../hocs/withApp";
 import MapView from "../components/MapView";
@@ -35,7 +33,6 @@ class MatchPage extends React.Component {
     const creator = await getUser(match.creatorKey);
     return {
       initialState: {
-        mounted: false,
         match,
         creator
       }
@@ -48,20 +45,12 @@ class MatchPage extends React.Component {
   }
 
   componentDidMount() {
-    this.setState({ mounted: true });
     onMatchChanged(this.state.match, match => {
-      console.log('UPDATED', match)
       this.setState({ match });
     });
   }
 
   render() {
-    if (!this.state.mounted) {
-      return <div />;
-    }
-
-    const stubUserKey = "Ob0YuT27SXNrX24MmiUyu3RR2Wp1"; // Nahuel Sotelo ARG
-
     const { t, classes } = this.props;
     const { match, creator } = this.state;
     const latlng = [match.location.lat, match.location.lng].join(",");
@@ -111,7 +100,7 @@ class MatchPage extends React.Component {
                       color="primary"
                       variant="raised"
                       size="large"
-                      onClick={() => requestInvite(match, stubUserKey)}
+                      onClick={() => this.handleRequestInvite(match)}
                     >
                       {t("requestInvite")}
                     </Button>
@@ -125,22 +114,18 @@ class MatchPage extends React.Component {
                 <Typography paragraph variant="title">
                   {match.name}
                 </Typography>
-                <Typography paragraph>{match.notes}</Typography>
+                <Typography paragraph>{nl2br(match.notes)}</Typography>
               </CardContent>
               <CardContent>
                 <Grid container justify="center">
                   <Grid item xs sm>
-                    <Typography
-                      gutterBottom
-                      variant="headline"
-                      dangerouslySetInnerHTML={{
-                        __html: t("placeLabel").replace(/\n/g, "<br/>")
-                      }}
-                    />
+                    <Typography gutterBottom variant="headline">
+                      {t("placeLabel")}
+                    </Typography>
                     <Typography paragraph>{match.place}</Typography>
                   </Grid>
                   <Grid item align="center" xs={4} sm={3} md={2}>
-                    <Typography variant="caption">¿Cómo llegar?</Typography>
+                    <Typography variant="caption">{t('howToGetThere')}</Typography>
                     <Button href={mapHref} color="primary">
                       <DirectionsIcon className={classes.directionIcon} />
                     </Button>
@@ -155,6 +140,12 @@ class MatchPage extends React.Component {
         </Grid>
       </div>
     );
+  }
+
+  handleRequestInvite(match) {
+    if (this.props.auth.isAnonymous) {
+      this.props.doLogin();
+    }
   }
 }
 
@@ -186,4 +177,6 @@ const geoConfig = {
   userDecisionTimeout: 5000
 };
 
-export default compose(withApp, withStyles(styles), withI18next(["match"]))(MatchPage);
+export default compose(withApp, withStyles(styles), withI18next(["match"]))(
+  MatchPage
+);
