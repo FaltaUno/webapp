@@ -32,9 +32,12 @@ export const requestInvite = async function(match, user) {
     approved: false
   };
 
+  const inviteRelation = { date: ServerValue.TIMESTAMP };
+
   let updates = {};
   updates[`invites/${inviteKey}`] = invite;
-  updates[`matches/${match.key}/usersInvites/${user.key}`] = { inviteKey };
-  updates[`users/${user.key}/matchesInvites/${match.key}`] = { inviteKey };
-  return await db.update(updates);
+  updates[`matches/${match.key}/invites/${inviteKey}`] = inviteRelation;
+  updates[`users/${user.key}/invites/${inviteKey}`] = inviteRelation;
+
+  return await db.update(updates).then(() => invite);
 };

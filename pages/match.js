@@ -32,20 +32,15 @@ class MatchPage extends React.Component {
   static async getInitialProps({ req, query }) {
     const match = await getMatch(query.key);
     const creator = await getUser(match.creatorKey);
+    const { invites = {} } = match;
 
-    const invitesKeys = [];
-    Object.keys(match.usersInvites).forEach(userKey => {
-      let userInvite = match.usersInvites[userKey];
-      invitesKeys.push(userInvite.inviteKey);
-    });
-
+    const invitesKeys = Object.keys(invites).map(inviteKey => inviteKey);
     const allInvites = await getInvites(invitesKeys);
-    const invites = allInvites.filter(invite => invite.approved === true);
     return {
       initialState: {
         match,
         creator,
-        invites
+        invites: allInvites
       }
     };
   }
@@ -62,70 +57,37 @@ class MatchPage extends React.Component {
   }
 
   render() {
-    const { auth, classes, t } = this.props;
+    const { classes, t } = this.props;
     const { match, creator, invites } = this.state;
     const latlng = [match.location.lat, match.location.lng].join(",");
 
-    const mapHref = `http://maps.apple.com/?q=${latlng}`;
-
-    const creatorAvatar = (
-      <Avatar
-        src={creator.photoURL}
-        alt={creator.displayName}
-        aria-label={creator.displayName}
-      />
-    );
-
     const now = new Date();
     const isFutureDate = now.getTime() < match.date;
+    const spots =
+      match.playersNeeded -
+      invites.filter(invite => invite.approved === true).length;
 
-    const cardTitle = html(t, "invitedYou", { user: creator.displayName });
-    const cardSubheader = (
-      <div>
-        {t(isFutureDate ? "willBePlayed" : "wasPlayed")}{" "}
-        <Moment calendar>{match.date}</Moment>
-      </div>
-    );
-
-    const spots = match.playersNeeded - invites.length;
-
-    let requestInviteButton = (
-      <Button color="default" variant="raised" size="large">
-        <CircularProgress color="inherit" size={24} />
-      </Button>
-    );
-
-    if (auth && (auth.key || auth.isAnonymous)) {
-      requestInviteButton = (
-        <Button color="primary" variant="raised" size="large" disabled>
-          {t("requestInviteSent")}
-        </Button>
-      );
-
-      const userDidNotRequest = !match.usersInvites[auth.key];
-      if (auth.isAnonymous || userDidNotRequest) {
-        requestInviteButton = (
-          <Button
-            color="primary"
-            variant="raised"
-            size="large"
-            onClick={() => this.handleRequestInvite(match)}
-          >
-            {t("requestInvite")}
-          </Button>
-        );
-      }
-    }
-
+    const requestInviteButton = this.getInviteButton();
     return (
       <div>
         <Grid container justify="center" alignItems="center">
           <Grid item xs={12} sm={10} md={8} lg={6} xl={4}>
             <Card className={classes.card}>
               <CardHeader
-                avatar={creatorAvatar}
-                title={cardTitle}
-                subheader={cardSubheader}
+                avatar={
+                  <Avatar
+                    src={creator.photoURL}
+                    alt={creator.displayName}
+                    aria-label={creator.displayName}
+                  />
+                }
+                title={html(t, "invitedYou", { user: creator.displayName })}
+                subheader={
+                  <div>
+                    {t(isFutureDate ? "willBePlayed" : "wasPlayed")}{" "}
+                    <Moment calendar>{match.date}</Moment>
+                  </div>
+                }
               />
               <CardContent>
                 <Grid container align="center" justify="space-between">
@@ -158,7 +120,10 @@ class MatchPage extends React.Component {
                     <Typography variant="caption">
                       {t("howToGetThere")}
                     </Typography>
-                    <Button href={mapHref} color="primary">
+                    <Button
+                      href={`http://maps.apple.com/?q=${latlng}`}
+                      color="primary"
+                    >
                       <DirectionsIcon className={classes.directionIcon} />
                     </Button>
                   </Grid>
@@ -174,6 +139,49 @@ class MatchPage extends React.Component {
     );
   }
 
+  getInviteButton() {
+    const { auth, t } = this.props;
+    const { match } = this.state;
+    let button = (
+      <Button color="default" variant="raised" size="large">
+        <CircularProgress color="inherit" size={24} />
+      </Button>
+    );
+
+    if (auth && (auth.key || auth.isAnonymous)) {
+      button = (
+        <Button color="primary" variant="raised" size="large" disabled>
+          {t("requestInviteSent")}
+        </Button>
+      );
+      if (auth.isAnonymous || !this.userAlreadyRequestedAnInvite()) {
+        button = (
+          <Button
+            color="primary"
+            variant="raised"
+            size="large"
+            onClick={() => this.handleRequestInvite(match)}
+          >
+            {t("requestInvite")}
+          </Button>
+        );
+      }
+    }
+
+    return button;
+  }
+
+  userAlreadyRequestedAnInvite() {
+    const { auth } = this.props;
+    const { invites } = this.state;
+    for (let invite of invites) {
+      if (invite.userKey === auth.key) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   handleRequestInvite(match) {
     if (this.props.auth.isAnonymous) {
       return this.props.doLogin(auth => {
@@ -184,10 +192,12 @@ class MatchPage extends React.Component {
     return this.doRequestInvite(match, this.props.auth);
   }
 
-  doRequestInvite(match, user) {
-    const userDidNotRequest = !match.usersInvites[user.key];
-    if (userDidNotRequest) {
-      return requestInvite(match, user);
+  async doRequestInvite(match, user) {
+    if (!this.userAlreadyRequestedAnInvite()) {
+      const invite = await requestInvite(match, user);
+      const invites = this.state.invites.slice();
+      invites.push(invite);
+      this.setState({ invites });
     }
   }
 }
