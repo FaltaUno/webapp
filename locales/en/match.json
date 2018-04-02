@@ -6,7 +6,7 @@
   "wasPlayed": "The match was played",
   "howToGetThere": "How to get there?",
   "requestInvite": "Join!",
-  "requestInviteSent": "Waiting for answer",
+  "requestInviteSent": "Request sent to the match owner",
   "requestInviteApproved": "You're in!",
   "remainingSpots": "There are {{spots}} spots left",
   "noRemainingSpots": "There are no spots left",
