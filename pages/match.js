@@ -1,5 +1,6 @@
 import { compose, withProps } from "recompose";
 import React from "react";
+import Head from "next/head";
 import {
   Avatar,
   Button,
@@ -38,6 +39,7 @@ class MatchPage extends React.Component {
     const allInvites = await getInvites(invitesKeys);
     return {
       initialState: {
+        pathname: req.path,
         match,
         creator,
         invites: allInvites
@@ -58,9 +60,8 @@ class MatchPage extends React.Component {
 
   render() {
     const { classes, t } = this.props;
-    const { match, creator, invites } = this.state;
+    const { pathname, match, creator, invites } = this.state;
     const latlng = [match.location.lat, match.location.lng].join(",");
-
     const now = new Date();
     const isFutureDate = now.getTime() < match.date;
     const spots =
@@ -70,6 +71,21 @@ class MatchPage extends React.Component {
     const requestInviteButton = this.getInviteButton();
     return (
       <div>
+        <Head>
+          <title>{`${match.name}`}</title>
+          <meta
+            property="og:title"
+            content={t("inviteMetaOgTitle", { userName: creator.displayName })}
+          />
+          <meta
+            property="og:description"
+            content={t("inviteMetaOgDescription", { matchName: match.name })}
+          />
+          <meta property="og:url" content={`${process.env.BASE_URL}${pathname}`} />
+          <meta property="og:image" content={creator.photoURL} />
+          <meta property="og:site_name" content="Falta Uno" />
+          <meta property="og:type" content="entertainment.sports" />
+        </Head>
         <Grid container justify="center" alignItems="center">
           <Grid item xs={12} sm={10} md={8} lg={6} xl={4}>
             <Card className={classes.card}>
@@ -93,7 +109,9 @@ class MatchPage extends React.Component {
                 <Grid container align="center" justify="space-between">
                   <Grid item>
                     <Typography variant="display1">
-                      {t("remainingSpots", { spots })}
+                      {spots
+                        ? t("remainingSpots", { spots })
+                        : t("noRemainingSpots")}
                     </Typography>
                   </Grid>
                   <Grid item>{requestInviteButton}</Grid>
@@ -154,7 +172,7 @@ class MatchPage extends React.Component {
           {t("requestInviteSent")}
         </Button>
       );
-      if (auth.isAnonymous || !this.userAlreadyRequestedAnInvite()) {
+      if (auth.isAnonymous || this.userInviteStatus() === null) {
         button = (
           <Button
             color="primary"
@@ -163,6 +181,14 @@ class MatchPage extends React.Component {
             onClick={() => this.handleRequestInvite(match)}
           >
             {t("requestInvite")}
+          </Button>
+        );
+      }
+
+      if (this.userInviteStatus() === true) {
+        button = (
+          <Button color="primary" size="large" disableRipple>
+            {t("requestInviteApproved")}
           </Button>
         );
       }
@@ -182,6 +208,17 @@ class MatchPage extends React.Component {
     return false;
   }
 
+  userInviteStatus() {
+    const { auth } = this.props;
+    const { invites } = this.state;
+    for (let invite of invites) {
+      if (invite.userKey === auth.key) {
+        return invite.requestRead ? invite.approved : null;
+      }
+    }
+    return null;
+  }
+
   handleRequestInvite(match) {
     if (this.props.auth.isAnonymous) {
       return this.props.doLogin(auth => {
@@ -193,7 +230,7 @@ class MatchPage extends React.Component {
   }
 
   async doRequestInvite(match, user) {
-    if (!this.userAlreadyRequestedAnInvite()) {
+    if (this.userInviteStatus() === null) {
       const invite = await requestInvite(match, user);
       const invites = this.state.invites.slice();
       invites.push(invite);
