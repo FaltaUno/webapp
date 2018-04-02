@@ -70,6 +70,7 @@ class MatchPage extends React.Component {
 
     const requestInviteButton = this.getInviteButton();
     const url = `${process.env.BASE_URL}${pathname}`;
+    //TODO: for <head> see _document.js https://github.com/zeit/next.js/#custom-document
     return (
       <div>
         <Head>
