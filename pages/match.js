@@ -69,22 +69,45 @@ class MatchPage extends React.Component {
       invites.filter(invite => invite.approved === true).length;
 
     const requestInviteButton = this.getInviteButton();
+    const url = `${process.env.BASE_URL}${pathname}`;
     return (
       <div>
         <Head>
           <title>{`${match.name}`}</title>
           <meta
+            name="description"
+            content={t("inviteMetaOgDescription", { matchName: match.name })}
+          />
+          {/* Twitter Card data */}
+          <meta
+            name="twitter:card"
+            value={t("inviteMetaOgDescription", { matchName: match.name })}
+          />
+          <meta name="twitter:site" content={url} />
+          <meta
+            name="twitter:title"
+            content={t("inviteMetaOgTitle", { userName: creator.displayName })}
+          />
+          <meta
+            name="twitter:description"
+            content={t("inviteMetaOgDescription", { matchName: match.name })}
+          />
+          <meta name="twitter:creator" content="@faltaUnoApp" />
+          {/*  Twitter Summary card images must be at least 120x120px */}
+          <meta name="twitter:image" content={creator.photoURL} />
+          {/* Open Graph data */}
+          <meta
             property="og:title"
             content={t("inviteMetaOgTitle", { userName: creator.displayName })}
           />
+          <meta property="og:site_name" content="Falta Uno" />
+          <meta property="og:type" content="article" />
+          <meta property="og:url" content={url} />
+          <meta property="og:image" content={creator.photoURL} />
           <meta
             property="og:description"
             content={t("inviteMetaOgDescription", { matchName: match.name })}
           />
-          <meta property="og:url" content={`${process.env.BASE_URL}${pathname}`} />
-          <meta property="og:image" content={creator.photoURL} />
-          <meta property="og:site_name" content="Falta Uno" />
-          <meta property="og:type" content="entertainment.sports" />
         </Head>
         <Grid container justify="center" alignItems="center">
           <Grid item xs={12} sm={10} md={8} lg={6} xl={4}>
