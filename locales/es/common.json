@@ -9,9 +9,9 @@
       "Para poder confirmarte en el equipo, el administrador del partido precisa una manera de contactarte.\nSeleccioná la que te resulete más cómoda: Facebook, Email o Whatsapp.",
     "facebookButton": "Ingresar con Facebook",
     "emailButton": "Email (magic link)",
-    "whatsappButton": "Whatsapp (verificación)",
+    "whatsappButton": "Whatsapp (verificación)"
   },
-  "logout":{
+  "logout": {
     "buttonLabel": "Cerrar sesión"
   }
 }

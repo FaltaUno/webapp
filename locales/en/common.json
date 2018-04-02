@@ -11,7 +11,7 @@
     "emailButton": "Email",
     "whatsappButton": "Whatsapp"
   },
-  "logout":{
+  "logout": {
     "buttonLabel": "Log out"
   }
 }
