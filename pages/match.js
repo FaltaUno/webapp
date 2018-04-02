@@ -20,6 +20,7 @@ import DirectionsIcon from "mdi-material-ui/Directions";
 
 import { withI18next } from "../hocs/withI18next";
 import { html, nl2br } from "../lib/utils";
+import { Router } from "../lib/routes";
 
 import withApp from "../hocs/withApp";
 import MapView from "../components/MapView";
@@ -30,7 +31,8 @@ import { getUser } from "../services/users";
 import Moment from "react-moment";
 
 class MatchPage extends React.Component {
-  static async getInitialProps({ req, query }) {
+  static async getInitialProps(context) {
+    const { req, query, asPath } = context;
     const match = await getMatch(query.key);
     const creator = await getUser(match.creatorKey);
     const { invites = {} } = match;
@@ -39,7 +41,7 @@ class MatchPage extends React.Component {
     const allInvites = await getInvites(invitesKeys);
     return {
       initialState: {
-        pathname: req.path,
+        asPath,
         match,
         creator,
         invites: allInvites
@@ -60,7 +62,7 @@ class MatchPage extends React.Component {
 
   render() {
     const { classes, t } = this.props;
-    const { pathname, match, creator, invites } = this.state;
+    const { asPath, match, creator, invites } = this.state;
     const latlng = [match.location.lat, match.location.lng].join(",");
     const now = new Date();
     const isFutureDate = now.getTime() < match.date;
@@ -69,7 +71,7 @@ class MatchPage extends React.Component {
       invites.filter(invite => invite.approved === true).length;
 
     const requestInviteButton = this.getInviteButton();
-    const url = `${process.env.BASE_URL}${pathname}`;
+    const url = `${process.env.BASE_URL}${asPath}`;
     //TODO: for <head> see _document.js https://github.com/zeit/next.js/#custom-document
     return (
       <div>
