@@ -184,7 +184,7 @@ class MatchPage extends React.Component {
   }
 
   getInviteButton() {
-    const { auth, t } = this.props;
+    const { loadingAuth, auth, user, t } = this.props;
     const { match } = this.state;
     let button = (
       <Button color="default" variant="raised" size="large">
@@ -192,12 +192,7 @@ class MatchPage extends React.Component {
       </Button>
     );
 
-    if (auth && (auth.key || auth.isAnonymous)) {
-      button = (
-        <Button color="primary" variant="raised" size="large" disabled>
-          {t("requestInviteSent")}
-        </Button>
-      );
+    if (!loadingAuth && auth) {
       if (auth.isAnonymous || this.userInviteStatus() === null) {
         button = (
           <Button
@@ -209,9 +204,13 @@ class MatchPage extends React.Component {
             {t("requestInvite")}
           </Button>
         );
-      }
-
-      if (this.userInviteStatus() === true) {
+      } else if (this.userInviteStatus() !== true) {
+        button = (
+          <Button color="primary" variant="raised" size="large" disabled>
+            {t("requestInviteSent")}
+          </Button>
+        );
+      } else {
         button = (
           <Button color="primary" size="large" disableRipple>
             {t("requestInviteApproved")}
@@ -235,24 +234,25 @@ class MatchPage extends React.Component {
   }
 
   userInviteStatus() {
-    const { auth } = this.props;
+    const { auth, user } = this.props;
     const { invites } = this.state;
     for (let invite of invites) {
-      if (invite.userKey === auth.key) {
-        return invite.requestRead ? invite.approved : null;
+      if (invite.userKey === user.key) {
+        return invite.requestRead && invite.approved;
       }
     }
+
     return null;
   }
 
   handleRequestInvite(match) {
     if (this.props.auth.isAnonymous) {
-      return this.props.doLogin(auth => {
-        this.doRequestInvite(match, auth);
+      return this.props.doLogin(user => {
+        this.doRequestInvite(match, user);
       });
     }
 
-    return this.doRequestInvite(match, this.props.auth);
+    return this.doRequestInvite(match, this.props.user);
   }
 
   async doRequestInvite(match, user) {

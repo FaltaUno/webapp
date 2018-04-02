@@ -18,7 +18,7 @@ import EmailIcon from "mdi-material-ui/Email";
 import WhatsappIcon from "mdi-material-ui/Whatsapp";
 
 import { withI18next } from "../hocs/withI18next";
-import { loadAuth, loadFacebookAuthProvider, parseUser } from "../lib/auth";
+import { loadAuth, loadFacebookAuthProvider, getUserFromAuth } from "../lib/auth";
 import { nl2br } from "../lib/utils";
 import { loadDB, normalizeSnap } from "../lib/database";
 
@@ -92,7 +92,7 @@ class LoginModal extends React.Component {
         return firebaseUser;
       })
       .then(async firebaseUser => {
-        const user = await parseUser(firebaseUser);
+        const user = await getUserFromAuth(firebaseUser);
         this.props.onLoggedUser(user);
         this.props.onLoginSuccess(user)
       })

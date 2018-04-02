@@ -8,23 +8,32 @@ import {
   Avatar,
   Button,
   Grid,
+  IconButton,
   Toolbar,
   Typography,
-  withStyles
+  withStyles,
+  Menu,
+  MenuItem,
+  CircularProgress
 } from "material-ui";
 import { withI18next } from "../hocs/withI18next";
+import { signOut } from "../lib/auth";
 
 import LoginModal from "./LoginModal";
 
 class Header extends React.Component {
   static defaultProps = {
+    loadingAuth: true,
+    auth: { isAnonymous: true },
+    user: {},
     showLogin: false,
     onLoggedUser: () => {},
     onLoginSuccess: () => {}
   };
 
   state = {
-    isDialogOpen: false
+    isDialogOpen: false,
+    anchorEl: null
   };
 
   componentWillReceiveProps(nextProps) {
@@ -35,81 +44,120 @@ class Header extends React.Component {
   }
 
   render() {
-    const {
-      auth,
-      classes,
-      onLoggedUser,
-      onLoginSuccess,
-      pathname,
-      t
-    } = this.props;
+    const { loadingAuth, auth, user } = this.props;
+    const { classes, t } = this.props;
+    const { onLoggedUser, onLoginSuccess } = this.props;
+    const { anchorEl } = this.state;
 
-    if(! auth){
-      return false
-    }
+    //   ,
+    //   onLoginSuccess,
+    const open = Boolean(anchorEl);
 
-    if (auth.isAnonymous) {
-      return (
+    let rightPane;
+
+    if (loadingAuth) {
+      rightPane = (
+        <CircularProgress color="inherit"/>
+      );
+    } else if (auth.isAnonymous) {
+      rightPane = (
         <div>
-          <Button
-            color="primary"
-            className={classes.loginButton}
-            onClick={() => this.openDialog()}
-          >
+          <Button color="inherit" onClick={this.handleOpenDialog}>
             {t("login.buttonLabel")}
           </Button>
           <LoginModal
             open={this.state.isDialogOpen}
-            onClose={() => this.closeDialog()}
+            onClose={this.handleCloseDialog}
             onLoggedUser={user => onLoggedUser(user)}
             onLoginSuccess={user => onLoginSuccess(user)}
           />
         </div>
       );
+    } else {
+      const anchorOrigin = {
+        vertical: "top",
+        horizontal: "right"
+      };
+      rightPane = (
+        <div>
+          <Button
+            color="inherit"
+            aria-owns={open ? "menu-appbar" : null}
+            aria-haspopup="true"
+            onClick={this.handleMenu}
+          >
+            {auth.displayName}
+            <Avatar
+              alt={auth.displayName}
+              src={auth.photoURL}
+              className={classes.buttonAvatar}
+            />
+          </Button>
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={anchorOrigin}
+            transformOrigin={anchorOrigin}
+            open={open}
+            onClose={this.handleClose}
+          >
+            <MenuItem onClick={this.logOut}>{t(`logout.buttonLabel`)}</MenuItem>
+          </Menu>
+        </div>
+      );
     }
+
     return (
-      <div>
-        <Grid
-          container
-          justify="flex-end"
-          alignItems="center"
-          className={classes.loggedUser}
-        >
-          <Grid item>
-            <Typography variant="button">{auth.displayName}</Typography>
-          </Grid>
-          <Grid item>
-            <Avatar alt={auth.displayName} src={auth.photoURL} />
-          </Grid>
-        </Grid>
-        {/*
-          <Link href="/">
-          <a className={pathname === "/" ? "is-active" : ""}>Home</a>
-        </Link>
-        */}
-      </div>
+      <AppBar position="static">
+        <Toolbar className={classes.toolbar}>
+          <Typography variant="title" color="inherit" className={classes.flex}>
+            {t("app.name")}
+          </Typography>
+          {rightPane}
+        </Toolbar>
+      </AppBar>
     );
   }
 
-  openDialog() {
-    this.setState({ isDialogOpen: true });
-  }
+  handleMenu = event => {
+    this.setState({ anchorEl: event.currentTarget });
+  };
 
-  closeDialog() {
+  logOut = () => {
+    signOut().then(() => {
+      this.handleClose();
+    });
+  };
+
+  handleClose = () => {
+    this.setState({ anchorEl: null });
+  };
+
+  handleOpenDialog = () => {
+    this.setState({ isDialogOpen: true });
+  };
+
+  handleCloseDialog = () => {
     this.setState({ isDialogOpen: false });
-  }
+  };
 }
 
 const styles = theme => ({
-  loginButton: {
-    position: "fixed",
-    top: theme.spacing.unit,
-    right: theme.spacing.unit
-  },
   loggedUser: {
     position: "fixed",
     top: theme.spacing.unit,
     right: theme.spacing.unit * 2
+  },
+  flex: {
+    flex: 1
+  },
+  toolbar: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  buttonAvatar: {
+    marginLeft: 15
   }
 });
 

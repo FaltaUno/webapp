@@ -10,5 +10,8 @@
     "facebookButton": "Login with Facebook",
     "emailButton": "Email",
     "whatsappButton": "Whatsapp"
+  },
+  "logout":{
+    "buttonLabel": "Log out"
   }
 }

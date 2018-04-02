@@ -9,7 +9,11 @@ import lightGreen from "material-ui/colors/lightGreen";
 import purple from "material-ui/colors/purple";
 
 import Header from "../components/Header";
-import { onAuthStateChanged, signInAnonymously, parseUser } from "../lib/auth";
+import {
+  onAuthStateChanged,
+  signInAnonymously,
+  getUserFromAuth
+} from "../lib/auth";
 
 const theme = createMuiTheme({
   palette: {
@@ -26,22 +30,15 @@ const withApp = PageComponent =>
 
     state = {
       mounted: false,
+      loadingAuth: true,
+      auth: { isAnonymous: true },
       user: {},
       showLogin: false,
       onLoginSuccess: () => {}
     };
 
     componentDidMount() {
-      onAuthStateChanged(async firebaseUser => {
-        if (firebaseUser && ! firebaseUser.isAnonymous) {
-          // Get the database info
-          let user = await parseUser(firebaseUser);
-          return this.setState({ user });
-        }
-
-        signInAnonymously();
-        return this.setState({ user: firebaseUser });
-      });
+      onAuthStateChanged(this.handleOnAuthStateChanged);
 
       this.setState({ mounted: true });
     }
@@ -59,13 +56,17 @@ const withApp = PageComponent =>
             />
           </Head>
           <Header
-            auth={this.state.user}
+            loadingAuth={this.state.loadingAuth}
+            auth={this.state.auth}
+            user={this.state.user}
             showLogin={this.state.showLogin}
             onLoggedUser={user => this.handleLoggedUser(user)}
             onLoginSuccess={user => this.handleLoginSuccess(user)}
           />
           <PageComponent
-            auth={this.state.user}
+            loadingAuth={this.state.loadingAuth}
+            auth={this.state.auth}
+            user={this.state.user}
             doLogin={onLoginSuccess => {
               this.handleDoLogin(onLoginSuccess);
             }}
@@ -74,6 +75,23 @@ const withApp = PageComponent =>
         </MuiThemeProvider>
       );
     }
+
+    handleOnAuthStateChanged = auth => {
+      if (auth) {
+        if (!auth.isAnonymous) {
+          this.setState({ loadingAuth: true });
+          // Get the database info
+          getUserFromAuth(auth).then(user => {
+            this.setState({ loadingAuth: false, auth, user });
+          });
+        } else {
+          this.setState({ loadingAuth: false, auth, user: {} });
+        }
+      } else {
+        this.setState({ loadingAuth: true });
+        signInAnonymously();
+      }
+    };
 
     handleDoLogin(onLoginSuccess) {
       this.setState({ showLogin: true, onLoginSuccess });
