@@ -1,0 +1,17 @@
+{
+  "app": {
+    "name": "Falta Uno!"
+  },
+  "login": {
+    "buttonLabel": "Login",
+    "modalTitle": "Log in so you can join to this match",
+    "modalDescription":
+      "In order to confirm your spot, the match admin needs a way to communicate with you.\nSelect the one that fits better with you: Facebook, Email or Whatsapp.",
+    "facebookButton": "Login with Facebook",
+    "emailButton": "Email",
+    "whatsappButton": "Whatsapp"
+  },
+  "logout": {
+    "buttonLabel": "Log out"
+  }
+}

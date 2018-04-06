@@ -1,5 +1,4 @@
-import { loadDB } from "../lib/database";
-import { normalizeSnap } from "../lib/firebase";
+import { loadDB, normalizeSnap } from "../lib/database";
 
 export const allUsers = async function() {
   const db = await loadDB();

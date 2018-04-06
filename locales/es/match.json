@@ -1,0 +1,15 @@
+{
+  "inviteMetaOgTitle": "{{userName}} te invitó a jugar un partido",
+  "inviteMetaOgDescription": "Ingresá y reservate un lugar para \"{{matchName}}\"",
+  "invitedYou": "{{user, strong}} te invitó a un partido",
+  "willBePlayed": "Se juega el",
+  "wasPlayed": "Se jugó el",
+  "howToGetThere": "¿Cómo llegar?",
+  "requestInvite": "¡Juego!",
+  "requestInviteSent": "Pedido enviado al admin del partido",
+  "requestInviteApproved": "¡Fuiste convocado!",
+  "remainingSpots": "Quedan {{spots}} lugares",
+  "noRemainingSpots": "No quedan más lugares",
+  "informationLabel": "Información del partido",
+  "placeLabel": "Dirección"
+}
