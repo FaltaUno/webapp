@@ -98,7 +98,7 @@ const withApp = PageComponent =>
     }
 
     handleLoggedUser(user) {
-      this.setState({ user });
+      this.setState({ showLogin: false, user });
     }
 
     handleLoginSuccess(user) {

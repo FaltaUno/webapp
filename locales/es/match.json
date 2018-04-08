@@ -1,15 +1,29 @@
 {
   "inviteMetaOgTitle": "{{userName}} te invitó a jugar un partido",
-  "inviteMetaOgDescription": "Ingresá y reservate un lugar para \"{{matchName}}\"",
+  "inviteMetaOgDescription":
+    "Ingresá y reservate un lugar para \"{{matchName}}\"",
   "invitedYou": "{{user, strong}} te invitó a un partido",
   "willBePlayed": "Se juega el",
   "wasPlayed": "Se jugó el",
   "howToGetThere": "¿Cómo llegar?",
-  "requestInvite": "¡Juego!",
-  "requestInviteSent": "Pedido enviado al admin del partido",
+  "requestInvite": "¡Quiero jugar!",
+  "requestInviteSent": "Pedido de participación enviado",
   "requestInviteApproved": "¡Fuiste convocado!",
   "remainingSpots": "Quedan {{spots}} lugares",
   "noRemainingSpots": "No quedan más lugares",
   "informationLabel": "Información del partido",
-  "placeLabel": "Dirección"
+  "placeLabel": "Dirección",
+  "contactInfo": {
+    "title": "Un paso más para enviar tu pedido de invitación",
+    "description":
+      "Si el administrador del partido acepta tu participación, le brindaremos tu correo electrónico.\nOpcionalmente, recomendamos incluir tu whatsapp (número de teléfono) para facilitar la comunicación entre ustedes.",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "Ej.: ejemplo@gmail.com",
+    "phoneLabel": "Número de teléfono",
+    "phonePlacholder": {
+      "AR": "Ej.: 11 1234-5678",
+      "UY": "Ej.: 99 123 456"
+    },
+    "buttonLabel": "Confirmar y enviar pedido de participación"
+  }
 }

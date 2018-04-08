@@ -4,10 +4,10 @@
   },
   "login": {
     "buttonLabel": "Login",
-    "modalTitle": "Log in so you can join to this match",
+    "modalTitle": "Log in so you can join to any match",
     "modalDescription":
-      "In order to confirm your spot, the match admin needs a way to communicate with you.\nSelect the one that fits better with you: Facebook, Email or Whatsapp.",
-    "facebookButton": "Login with Facebook",
+      "In order to confirm your spot, we need to identify you.\nLog in with your Facebook account and request your spot in any match.",
+    "facebookButton": "Login",
     "emailButton": "Email",
     "whatsappButton": "Whatsapp"
   },

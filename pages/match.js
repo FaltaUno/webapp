@@ -9,14 +9,24 @@ import {
   CardContent,
   CardHeader,
   CardMedia,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Grid,
+  InputAdornment,
+  Slide,
+  TextField,
   Typography,
-  withStyles,
-  CircularProgress
+  withStyles
 } from "material-ui";
 import { Marker } from "react-google-maps";
 // import { geolocated } from "react-geolocated";
 import DirectionsIcon from "mdi-material-ui/Directions";
+import EmailIcon from "mdi-material-ui/Email";
+import WhatsappIcon from "mdi-material-ui/Whatsapp";
 
 import { withI18next } from "../hocs/withI18next";
 import { html, nl2br } from "../lib/utils";
@@ -25,10 +35,13 @@ import { Router } from "../lib/routes";
 import withApp from "../hocs/withApp";
 import MapView from "../components/MapView";
 
+import { formatNumber, parseNumber } from "libphonenumber-js";
+
 import { requestInvite, getInvites } from "../services/invites";
 import { getMatch, onMatchChanged } from "../services/matches";
 import { getUser } from "../services/users";
 import Moment from "react-moment";
+import { MenuItem } from "material-ui";
 
 class MatchPage extends React.Component {
   static async getInitialProps(context) {
@@ -44,7 +57,13 @@ class MatchPage extends React.Component {
         asPath,
         match,
         creator,
-        invites: allInvites
+        invites: allInvites,
+        openContactInfoDialog: false,
+        contactInfoPhone: {
+          country: "AR",
+          phone: ""
+        },
+        sendingInvite: false
       }
     };
   }
@@ -185,24 +204,116 @@ class MatchPage extends React.Component {
 
   getInviteButton() {
     const { loadingAuth, auth, user, t } = this.props;
-    const { match } = this.state;
+    const { match, sendingInvite } = this.state;
     let button = (
       <Button color="default" variant="raised" size="large">
         <CircularProgress color="inherit" size={24} />
       </Button>
     );
 
-    if (!loadingAuth && auth) {
+    if (!loadingAuth && auth && !sendingInvite) {
       if (auth.isAnonymous || this.userInviteStatus() === null) {
+        const { openContactInfoDialog, contactInfoPhone } = this.state;
+        const { country, phone } = contactInfoPhone;
         button = (
-          <Button
-            color="primary"
-            variant="raised"
-            size="large"
-            onClick={() => this.handleRequestInvite(match)}
-          >
-            {t("requestInvite")}
-          </Button>
+          <div>
+            <Button
+              color="primary"
+              variant="raised"
+              size="large"
+              onClick={this.handleOpenContactInfoDialog}
+            >
+              {t("requestInvite")}
+            </Button>
+            <Dialog
+              open={openContactInfoDialog}
+              onClose={this.handleOnCloseContactInfoDialog}
+              aria-labelledby="contact-info-dialog-title"
+            >
+              <DialogTitle id="contact-info-dialog-title">
+                {t("contactInfo.title")}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  {t("contactInfo.description")}
+                </DialogContentText>
+                <TextField
+                  margin="normal"
+                  id="email"
+                  label={t("contactInfo.emailLabel")}
+                  value={user.email}
+                  type="email"
+                  fullWidth
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <EmailIcon color="primary" />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+                <Grid container alignItems="flex-end">
+                  <Grid item>
+                    <TextField
+                      id="select-currency"
+                      select
+                      label="Código de país"
+                      value={country}
+                      onChange={event =>
+                        this.setState({
+                          contactInfoPhone: {
+                            country: event.target.value,
+                            phone
+                          }
+                        })
+                      }
+                      margin="normal"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <WhatsappIcon color="primary" />
+                          </InputAdornment>
+                        )
+                      }}
+                    >
+                      <MenuItem value="AR">AR (+54)</MenuItem>
+                      <MenuItem value="UY">UY (+598)</MenuItem>
+                    </TextField>
+                  </Grid>
+                  <Grid item xs>
+                    <TextField
+                      margin="normal"
+                      id="phone"
+                      label={t("contactInfo.phoneLabel")}
+                      placeholder={t("contactInfo.phonePlacholder." + country)}
+                      error={this.phoneNumberIsNotValid(contactInfoPhone)}
+                      onChange={event =>
+                        this.setState({
+                          contactInfoPhone: {
+                            country,
+                            phone: event.target.value
+                          }
+                        })
+                      }
+                      value={phone}
+                      type="text"
+                      fullWidth
+                    />
+                  </Grid>
+                </Grid>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  color="primary"
+                  variant="raised"
+                  size="large"
+                  onClick={() => this.handleRequestInvite(match)}
+                >
+                  {t("contactInfo.buttonLabel")}
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </div>
         );
       } else if (this.userInviteStatus() !== true) {
         button = (
@@ -245,23 +356,60 @@ class MatchPage extends React.Component {
     return null;
   }
 
-  handleRequestInvite(match) {
+  handleOpenContactInfoDialog = () => {
     if (this.props.auth.isAnonymous) {
-      return this.props.doLogin(user => {
-        this.doRequestInvite(match, user);
+      return this.props.doLogin(() => {
+        // If the user didn't request to participate yet
+        if (this.userInviteStatus() === null) {
+          this.setState({ openContactInfoDialog: true });
+        }
+        return;
       });
     }
 
-    return this.doRequestInvite(match, this.props.user);
-  }
+    return this.setState({ openContactInfoDialog: true });
+  };
 
-  async doRequestInvite(match, user) {
-    if (this.userInviteStatus() === null) {
-      const invite = await requestInvite(match, user);
-      const invites = this.state.invites.slice();
-      invites.push(invite);
-      this.setState({ invites });
+  handleOnCloseContactInfoDialog = () => {
+    this.setState({ openContactInfoDialog: false });
+  };
+
+  phoneNumberIsNotValid = phoneNumber => {
+    if (phoneNumber.phone) {
+      const parsed = parseNumber(phoneNumber.phone, phoneNumber.country);
+      const { country, phone } = parsed;
+      return !phone;
     }
+    return false;
+  };
+
+  formatPhoneNumber = phoneNumber => {
+    if (!phoneNumber) {
+      return "";
+    }
+
+    return formatNumber(phoneNumber, "International");
+  };
+
+  handlePhoneValidation = event => {
+    const phoneNumber = event.target.value;
+  };
+
+  handleRequestInvite = match => {
+    return this.doRequestInvite(
+      match,
+      this.props.user,
+      this.state.contactInfoPhone
+    );
+  };
+
+  async doRequestInvite(match, user, phone) {
+    // Va ahora en el open dialog
+    this.setState({ sendingInvite: true });
+    const invite = await requestInvite(match, user, phone);
+    const invites = this.state.invites.slice();
+    invites.push(invite);
+    this.setState({ sendingInvite: false, invites });
   }
 }
 

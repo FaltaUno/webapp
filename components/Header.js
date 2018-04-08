@@ -46,7 +46,6 @@ class Header extends React.Component {
   render() {
     const { loadingAuth, auth, user } = this.props;
     const { classes, t } = this.props;
-    const { onLoggedUser, onLoginSuccess } = this.props;
     const { anchorEl } = this.state;
 
     //   ,
@@ -56,9 +55,7 @@ class Header extends React.Component {
     let rightPane;
 
     if (loadingAuth) {
-      rightPane = (
-        <CircularProgress color="inherit"/>
-      );
+      rightPane = <CircularProgress color="inherit" />;
     } else if (auth.isAnonymous) {
       rightPane = (
         <div>
@@ -68,8 +65,8 @@ class Header extends React.Component {
           <LoginModal
             open={this.state.isDialogOpen}
             onClose={this.handleCloseDialog}
-            onLoggedUser={user => onLoggedUser(user)}
-            onLoginSuccess={user => onLoginSuccess(user)}
+            onLoggedUser={this.handleOnLoggedUser}
+            onLoginSuccess={this.handleOnLoginSuccess}
           />
         </div>
       );
@@ -86,10 +83,10 @@ class Header extends React.Component {
             aria-haspopup="true"
             onClick={this.handleMenu}
           >
-            {auth.displayName}
+            {user.displayName}
             <Avatar
-              alt={auth.displayName}
-              src={auth.photoURL}
+              alt={user.displayName}
+              src={user.photoURL}
               className={classes.buttonAvatar}
             />
           </Button>
@@ -139,6 +136,14 @@ class Header extends React.Component {
 
   handleCloseDialog = () => {
     this.setState({ isDialogOpen: false });
+  };
+
+  handleOnLoggedUser = user => {
+    this.props.onLoggedUser(user);
+  };
+
+  handleOnLoginSuccess = user => {
+    this.props.onLoginSuccess(user);
   };
 }
 

@@ -17,9 +17,11 @@ export const getInvite = async key => {
   return normalizeSnap(snap);
 };
 
-export const requestInvite = async function(match, user) {
+export const requestInvite = async function(match, user, phone) {
   const db = loadDB();
   const ServerValue = loadServerValue();
+
+  // Invite
   const inviteKey = await db.child(`invites`).push().key;
   const invite = {
     createdAt: ServerValue.TIMESTAMP,
@@ -32,12 +34,15 @@ export const requestInvite = async function(match, user) {
     approved: false
   };
 
+  // Invite relations
   const inviteRelation = { date: ServerValue.TIMESTAMP };
 
   let updates = {};
   updates[`invites/${inviteKey}`] = invite;
   updates[`matches/${match.key}/invites/${inviteKey}`] = inviteRelation;
   updates[`users/${user.key}/invites/${inviteKey}`] = inviteRelation;
+  // User contact info
+  updates[`users/${user.key}/contactInfo`] = { phone };
 
   return await db.update(updates).then(() => invite);
 };

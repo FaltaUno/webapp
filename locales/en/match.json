@@ -1,15 +1,29 @@
 {
   "inviteMetaOgTitle": "{{userName}} has invited you to a match",
-  "inviteMetaOgDescription": "Get in and request your spot at \"{{matchName}}\"",
+  "inviteMetaOgDescription":
+    "Get in and request your spot at \"{{matchName}}\"",
   "invitedYou": "{{user, strong}} invited you to a match",
   "willBePlayed": "The match is",
   "wasPlayed": "The match was played",
   "howToGetThere": "How to get there?",
-  "requestInvite": "Join!",
-  "requestInviteSent": "Request sent to the match owner",
+  "requestInvite": "¡I wanna play!",
+  "requestInviteSent": "Request sent",
   "requestInviteApproved": "You're in!",
   "remainingSpots": "There are {{spots}} spots left",
   "noRemainingSpots": "There are no spots left",
   "informationLabel": "Match info",
-  "placeLabel": "Address"
+  "placeLabel": "Address",
+  "contactInfo": {
+    "title": "Set your preferred contact info",
+    "description":
+      "If the admin of th ematch accepts your invite request, we'll share your email address with him. Optionally, we recommend you to give your whatsapp (telephone number) to facilitate the communication between both of you.",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "e.g.: example@gmail.com",
+    "phoneLabel": "Phone number",
+    "phonePlacholder": {
+      "AR": "e.g.: 11 1234-5678",
+      "UY": "e.g.: 99 123 456"
+    },
+    "buttonLabel": "Confirm and send my invite request"
+  }
 }

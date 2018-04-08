@@ -4,10 +4,10 @@
   },
   "login": {
     "buttonLabel": "Iniciar sesión",
-    "modalTitle": "Ingresá con tu cuenta para poder unirte a este partido",
+    "modalTitle": "Ingresá con tu cuenta y unite a los partidos que quieras",
     "modalDescription":
-      "Para poder confirmarte en el equipo, el administrador del partido precisa una manera de contactarte.\nSeleccioná la que te resulete más cómoda: Facebook, Email o Whatsapp.",
-    "facebookButton": "Ingresar con Facebook",
+      "Para poder confirmarte en cualquier equipo, necesitamos identificarte.\nIngresá con tu cuenta de Facebook y pedí tu lugar en cualquier partido.",
+    "facebookButton": "Ingresar",
     "emailButton": "Email (magic link)",
     "whatsappButton": "Whatsapp (verificación)"
   },
