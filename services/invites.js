@@ -1,4 +1,5 @@
 import { loadDB, loadServerValue, normalizeSnap } from "../lib/database";
+import { notifyInviteRequestToMatchCreator } from "./pushNotification";
 
 export const getInviteRef = key => {
   return loadDB().child(`invites/${key}`);
@@ -17,7 +18,7 @@ export const getInvite = async key => {
   return normalizeSnap(snap);
 };
 
-export const requestInvite = async function(match, user, phone) {
+export const requestInvite = async (match, user, phone, matchCreator) => {
   const db = loadDB();
   const ServerValue = loadServerValue();
 
@@ -44,5 +45,8 @@ export const requestInvite = async function(match, user, phone) {
   // User contact info
   updates[`users/${user.key}/contactInfo`] = { phone };
 
-  return await db.update(updates).then(() => invite);
+  await db.update(updates);
+  // Send the push notification, no matters the response
+  notifyInviteRequestToMatchCreator(matchCreator, match, user);
+  return invite;
 };

@@ -238,6 +238,7 @@ class MatchPage extends React.Component {
                   {t("contactInfo.description")}
                 </DialogContentText>
                 <TextField
+                  disabled
                   margin="normal"
                   id="email"
                   label={t("contactInfo.emailLabel")}
@@ -304,6 +305,7 @@ class MatchPage extends React.Component {
               </DialogContent>
               <DialogActions>
                 <Button
+                  disabled={this.phoneNumberIsNotValid(contactInfoPhone)}
                   color="primary"
                   variant="raised"
                   size="large"
@@ -399,14 +401,15 @@ class MatchPage extends React.Component {
     return this.doRequestInvite(
       match,
       this.props.user,
-      this.state.contactInfoPhone
+      this.state.contactInfoPhone,
+      this.state.creator
     );
   };
 
-  async doRequestInvite(match, user, phone) {
+  async doRequestInvite(match, user, phone, matchCreator) {
     // Va ahora en el open dialog
     this.setState({ sendingInvite: true });
-    const invite = await requestInvite(match, user, phone);
+    const invite = await requestInvite(match, user, phone, matchCreator);
     const invites = this.state.invites.slice();
     invites.push(invite);
     this.setState({ sendingInvite: false, invites });
