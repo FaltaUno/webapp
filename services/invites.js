@@ -1,5 +1,10 @@
 import { loadDB, loadServerValue, normalizeSnap } from "../lib/database";
 import { notifyInviteRequestToMatchCreator } from "./pushNotification";
+import { getUser } from "./users";
+
+export const getInvitesRef = () => {
+  return loadDB().child(`invites`);
+};
 
 export const getInviteRef = key => {
   return loadDB().child(`invites/${key}`);
@@ -49,4 +54,29 @@ export const requestInvite = async (match, user, phone, matchCreator) => {
   // Send the push notification, no matters the response
   notifyInviteRequestToMatchCreator(matchCreator, match, user);
   return invite;
+};
+
+export const getUnreadInviteRequestsCountForMatchAdmin = userKey => {
+  // Get the user matches and count the unread requests for everyone of them
+  return getUser(userKey).then(user => {
+    let count = 0;
+    let reqs$ = [];
+    Object.keys(user.matches).map(matchKey => {
+      reqs$.push(
+        getInvitesRef()
+          .orderByChild(`matchKey`)
+          .equalTo(matchKey)
+          .once("value", snaps => {
+            snaps.forEach(snap => {
+              const invite = snap.val();
+              if (!invite.requestRead) {
+                count++;
+              }
+            });
+          })
+      );
+    });
+
+    return Promise.all(reqs$).then(() => count);
+  });
 };

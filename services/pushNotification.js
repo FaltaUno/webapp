@@ -1,10 +1,11 @@
 import fetch from "isomorphic-unfetch";
 
+import { getUnreadInviteRequestsCountForMatchAdmin } from "./invites";
 //TODO: Localize when the app is detached
 
-const notify = (token, data) => {
-  data.to = token;
-  data.badge = 1;
+const notify = async (user, data) => {
+  data.to = user.pushToken;
+  data.badge = await getUnreadInviteRequestsCountForMatchAdmin(user.key);
   console.log(process.env.PUSH_URI);
 
   return fetch(process.env.PUSH_URI, {
@@ -25,7 +26,7 @@ export const notifyInviteRequestToMatchCreator = (
   match,
   user
 ) => {
-  return notify(matchCreator.pushToken, {
+  return notify(matchCreator, {
     title: `${user.displayName} quiere jugar en ${match.name}`,
     body: `Ingresá para aceptarlo o rechazarlo`,
     data: {
