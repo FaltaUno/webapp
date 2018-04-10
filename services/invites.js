@@ -33,11 +33,11 @@ export const requestInvite = async (match, user, phone, matchCreator) => {
     createdAt: ServerValue.TIMESTAMP,
     matchKey: match.key,
     userKey: user.key,
-    requestNotified: false,
+    userEmail: user.email,
+    userPhone: phone,
     requestRead: false,
-    approvalNotified: false,
-    approvalRead: false,
-    approved: false
+    approved: false,
+    approvalRead: false
   };
 
   // Invite relations

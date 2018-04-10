@@ -79,6 +79,19 @@ class MatchPage extends React.Component {
     });
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { auth, user } = nextProps;
+    // When the user is loaded, if she has contactInfo defined, we set it as default
+    if (auth.isAnonymous !== this.props.auth.isAnonymous) {
+      if (!auth.isAnonymous) {
+        const { contactInfo } = user;
+        if (contactInfo) {
+          this.setState({ contactInfoPhone: contactInfo.phone });
+        }
+      }
+    }
+  }
+
   render() {
     const { classes, t } = this.props;
     const { asPath, match, creator, invites } = this.state;
@@ -413,6 +426,8 @@ class MatchPage extends React.Component {
     const invites = this.state.invites.slice();
     invites.push(invite);
     this.setState({ sendingInvite: false, invites });
+    // Close the dialog
+    this.handleOnCloseContactInfoDialog();
   }
 }
 
