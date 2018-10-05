@@ -32,7 +32,7 @@ import WhatsappIcon from "mdi-material-ui/Whatsapp";
 import { withI18next } from "../hocs/withI18next";
 import { html, nl2br } from "../lib/utils";
 import { Router } from "../lib/routes";
-import { loadMessaging } from "../lib/messaging";
+import { getMessagingToken } from "../lib/messaging";
 
 import withApp from "../hocs/withApp";
 import MapView from "../components/MapView";
@@ -182,7 +182,7 @@ class MatchPage extends React.Component {
                     <Button
                       size="small"
                       color="primary"
-                      onClick={this.handleNotificationPermission}
+                      onClick={this.handleSubscribeMeForNotifications}
                     >
                       Notificarme cuando respondan
                       <BellIcon />
@@ -445,37 +445,21 @@ class MatchPage extends React.Component {
     this.handleOnCloseContactInfoDialog();
   }
 
-  async handleNotificationPermission() {
-    try {
-      const messaging = loadMessaging();
-      const currentToken = await messaging.getToken();
-      if (currentToken) {
-        console.log("Current token", currentToken);
-      } else {
-        // Show permission request.
-        console.err(
-          "No Instance ID token available. Request permission to generate one."
-        );
-        await messaging.requestPermission();
-        const currentToken = await messaging.getToken();
-        console.log(currentToken);
-      }
+  handleSubscribeMeForNotifications() {
+      getMessagingToken().then(response => {
+        const { permission, token } = response
+        if(permission === false){
+          // No permission
+          return;
+        }
 
-      messaging.onTokenRefresh(function() {
-        messaging
-          .getToken()
-          .then(function(refreshedToken) {
-            console.log("Token refreshed.", refreshedToken);
-            // ...
-          })
-          .catch(function(err) {
-            console.log("Unable to retrieve refreshed token ", err);
-            showToken("Unable to retrieve refreshed token ", err);
-          });
-      });
-    } catch (error) {
-      console.error(error);
-    }
+        if(token === null){
+          // Need refresh
+          return;
+        }
+        
+        console.log('TOKEN', token);
+      })
   }
 }
 
