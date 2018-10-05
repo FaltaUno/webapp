@@ -6,8 +6,6 @@ import { getUnreadInviteRequestsCountForMatchAdmin } from "./invites";
 const notify = async (user, data) => {
   data.to = user.pushToken;
   data.badge = await getUnreadInviteRequestsCountForMatchAdmin(user.key);
-  console.log(process.env.PUSH_URI);
-
   return fetch(process.env.PUSH_URI, {
     mode: "no-cors",
     method: "POST",

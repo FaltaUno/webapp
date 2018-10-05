@@ -26,11 +26,13 @@ import { Marker } from "react-google-maps";
 // import { geolocated } from "react-geolocated";
 import DirectionsIcon from "mdi-material-ui/Directions";
 import EmailIcon from "mdi-material-ui/Email";
+import BellIcon from "mdi-material-ui/Bell";
 import WhatsappIcon from "mdi-material-ui/Whatsapp";
 
 import { withI18next } from "../hocs/withI18next";
 import { html, nl2br } from "../lib/utils";
 import { Router } from "../lib/routes";
+import { loadMessaging } from "../lib/messaging";
 
 import withApp from "../hocs/withApp";
 import MapView from "../components/MapView";
@@ -109,6 +111,7 @@ class MatchPage extends React.Component {
       <div>
         <Head>
           <title>{`${match.name}`}</title>
+          <link rel="manifest" href="/manifest.json" />
           <meta
             name="description"
             content={t("inviteMetaOgDescription", { matchName: match.name })}
@@ -166,13 +169,25 @@ class MatchPage extends React.Component {
               <CardContent>
                 <Grid container align="center" justify="space-between">
                   <Grid item>
-                    <Typography variant="display1">
+                    <Typography variant="headline">
                       {spots
                         ? t("remainingSpots", { spots })
                         : t("noRemainingSpots")}
                     </Typography>
                   </Grid>
                   <Grid item>{requestInviteButton}</Grid>
+                </Grid>
+                <Grid container justify="flex-end">
+                  <Grid item>
+                    <Button
+                      size="small"
+                      color="primary"
+                      onClick={this.handleNotificationPermission}
+                    >
+                      Notificarme cuando respondan
+                      <BellIcon />
+                    </Button>
+                  </Grid>
                 </Grid>
               </CardContent>
             </Card>
@@ -429,6 +444,39 @@ class MatchPage extends React.Component {
     // Close the dialog
     this.handleOnCloseContactInfoDialog();
   }
+
+  async handleNotificationPermission() {
+    try {
+      const messaging = loadMessaging();
+      const currentToken = await messaging.getToken();
+      if (currentToken) {
+        console.log("Current token", currentToken);
+      } else {
+        // Show permission request.
+        console.err(
+          "No Instance ID token available. Request permission to generate one."
+        );
+        await messaging.requestPermission();
+        const currentToken = await messaging.getToken();
+        console.log(currentToken);
+      }
+
+      messaging.onTokenRefresh(function() {
+        messaging
+          .getToken()
+          .then(function(refreshedToken) {
+            console.log("Token refreshed.", refreshedToken);
+            // ...
+          })
+          .catch(function(err) {
+            console.log("Unable to retrieve refreshed token ", err);
+            showToken("Unable to retrieve refreshed token ", err);
+          });
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 
 const styles = theme => ({
@@ -459,6 +507,8 @@ const geoConfig = {
   userDecisionTimeout: 5000
 };
 
-export default compose(withApp, withStyles(styles), withI18next(["match"]))(
-  MatchPage
-);
+export default compose(
+  withApp,
+  withStyles(styles),
+  withI18next(["match"])
+)(MatchPage);

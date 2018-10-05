@@ -30,11 +30,24 @@ i18nInstance
       .then(() => {
         const server = express();
 
+        // Google manifest
+        server.get("/manifest.json", (req, res) => {
+          app.serveStatic(req, res, "static/manifest.json");
+        });
+
+        // Firebase messaging
+        server.get("/firebase-messaging-sw.js", (req, res) => {
+          app.serveStatic(req, res, "static/firebase-messaging-sw.js");
+        });
+
         // enable middleware for i18next
         server.use(i18nextMiddleware.handle(i18nInstance));
 
         // serve locales for client
-        server.use("/locales", express.static(path.join(__dirname, "/locales")));
+        server.use(
+          "/locales",
+          express.static(path.join(__dirname, "/locales"))
+        );
 
         // missing keys
         server.post(
