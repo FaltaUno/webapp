@@ -1,6 +1,13 @@
-import { loadMessaging } from "../lib/messaging";
+/* global importScripts, firebase, clients */
+importScripts("https://www.gstatic.com/firebasejs/4.11.0/firebase-app.js");
+importScripts(
+  "https://www.gstatic.com/firebasejs/4.11.0/firebase-messaging.js"
+);
 
-const messaging = loadMessaging();
+firebase.initializeApp({
+  messagingSenderId: "1019925486930"
+});
+const messaging = firebase.messaging();
 
 messaging.setBackgroundMessageHandler(payload => {
   const notificationData = JSON.parse(payload.data.notification) || {};

@@ -5,10 +5,8 @@ import {
   Avatar,
   Button,
   Card,
-  CardActions,
   CardContent,
   CardHeader,
-  CardMedia,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -17,7 +15,6 @@ import {
   DialogTitle,
   Grid,
   InputAdornment,
-  Slide,
   TextField,
   Typography,
   withStyles
@@ -31,11 +28,11 @@ import WhatsappIcon from "mdi-material-ui/Whatsapp";
 
 import { withI18next } from "../hocs/withI18next";
 import { html, nl2br } from "../lib/utils";
-import { Router } from "../lib/routes";
 import {
   checkMessagingStatus,
   onMessagingTokenRefresh,
-  getMessagingToken
+  getMessagingToken,
+  onMessagingMessage
 } from "../lib/messaging";
 
 import withApp from "../hocs/withApp";
@@ -45,7 +42,11 @@ import { formatNumber, parseNumber } from "libphonenumber-js";
 
 import { requestInvite, getInvites } from "../services/invites";
 import { getMatch, onMatchChanged } from "../services/matches";
-import { getUser, unregisterMessagingToken, registerMessagingToken } from "../services/users";
+import {
+  getUser,
+  unregisterMessagingToken,
+  registerMessagingToken
+} from "../services/users";
 import Moment from "react-moment";
 import { MenuItem } from "material-ui";
 
@@ -83,6 +84,24 @@ class MatchPage extends React.Component {
   componentDidMount() {
     onMatchChanged(this.state.match, match => {
       this.setState({ match });
+    });
+    checkMessagingStatus().then(subscription => {
+      this.setState({ subscription });
+    });
+    onMessagingTokenRefresh(subscription => {
+      const { token } = subscription;
+      const { user } = this.props;
+      unregisterMessagingToken(
+        user.key,
+        this.state.subscription.token
+      ).then(() => {
+        registerMessagingToken(user.key, token).then(() => {
+          this.setState({ subscription });
+        });
+      });
+    });
+    onMessagingMessage(payload => {
+      console.log(payload);
     });
   }
 
@@ -491,9 +510,14 @@ class MatchPage extends React.Component {
     getMessagingToken().then(subscription => {
       const { token } = subscription;
       const { user } = this.props;
-      registerMessagingToken(user.key, token).then(() => {
-        this.setState({ subscription });
-      });
+      unregisterMessagingToken(
+        user.key,
+        token
+      ).then(() => {
+        registerMessagingToken(user.key, token).then(() => {
+          this.setState({ subscription });
+        });
+      })
     });
   };
 }

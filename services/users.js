@@ -29,10 +29,5 @@ export const unregisterMessagingToken = async (key, token) => {
 
 export const registerMessagingToken = async (key, token) => {
   const user = await getUsersRef().child(key);
-  const ServerValue = loadServerValue();
-  const newTokenItemKey = user.child(`messagingTokens`).push().key;
-  return user.child(`messagingTokens/${newTokenItemKey}`).set({
-    token,
-    date: ServerValue.TIMESTAMP
-  });
+  return user.child(`messagingTokens/${token}`).set(true);
 };
