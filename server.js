@@ -30,12 +30,12 @@ i18nInstance
       .then(() => {
         const server = express();
 
-        // Google manifest
-        server.get("/manifest.json", (req, res) => {
+        // Firebase messaging - GCM ID
+        server.get("/manisfest.json", (req, res) => {
           app.serveStatic(req, res, "static/manifest.json");
         });
 
-        // Firebase messaging
+        // Firebase messaging - Service worker
         server.get("/firebase-messaging-sw.js", (req, res) => {
           app.serveStatic(req, res, "static/firebase-messaging-sw.js");
         });
