@@ -32,7 +32,11 @@ import WhatsappIcon from "mdi-material-ui/Whatsapp";
 import { withI18next } from "../hocs/withI18next";
 import { html, nl2br } from "../lib/utils";
 import { Router } from "../lib/routes";
-import { getMessagingToken } from "../lib/messaging";
+import {
+  checkMessagingStatus,
+  onMessagingTokenRefresh,
+  getMessagingToken
+} from "../lib/messaging";
 
 import withApp from "../hocs/withApp";
 import MapView from "../components/MapView";
@@ -41,7 +45,7 @@ import { formatNumber, parseNumber } from "libphonenumber-js";
 
 import { requestInvite, getInvites } from "../services/invites";
 import { getMatch, onMatchChanged } from "../services/matches";
-import { getUser } from "../services/users";
+import { getUser, unregisterMessagingToken, registerMessagingToken } from "../services/users";
 import Moment from "react-moment";
 import { MenuItem } from "material-ui";
 
@@ -65,7 +69,8 @@ class MatchPage extends React.Component {
           country: "AR",
           phone: ""
         },
-        sendingInvite: false
+        sendingInvite: false,
+        subscription: { permission: null, token: null }
       }
     };
   }
@@ -105,13 +110,14 @@ class MatchPage extends React.Component {
       invites.filter(invite => invite.approved === true).length;
 
     const requestInviteButton = this.getInviteButton();
+    const subscribeMeForNotifications = this.getSubscribeMeButton();
     const url = `${process.env.BASE_URL}${asPath}`;
     //TODO: for <head> see _document.js https://github.com/zeit/next.js/#custom-document
     return (
       <div>
         <Head>
           <title>{`${match.name}`}</title>
-          <link rel="manifest" href="/manifest.json" />
+          <link rel="manifest" href="/static/manifest.json" />
           <meta
             name="description"
             content={t("inviteMetaOgDescription", { matchName: match.name })}
@@ -177,18 +183,7 @@ class MatchPage extends React.Component {
                   </Grid>
                   <Grid item>{requestInviteButton}</Grid>
                 </Grid>
-                <Grid container justify="flex-end">
-                  <Grid item>
-                    <Button
-                      size="small"
-                      color="primary"
-                      onClick={this.handleSubscribeMeForNotifications}
-                    >
-                      Notificarme cuando respondan
-                      <BellIcon />
-                    </Button>
-                  </Grid>
-                </Grid>
+                {subscribeMeForNotifications}
               </CardContent>
             </Card>
             <Card className={classes.card}>
@@ -445,22 +440,62 @@ class MatchPage extends React.Component {
     this.handleOnCloseContactInfoDialog();
   }
 
-  handleSubscribeMeForNotifications() {
-      getMessagingToken().then(response => {
-        const { permission, token } = response
-        if(permission === false){
-          // No permission
-          return;
-        }
+  getSubscribeMeButton() {
+    const { loadingAuth, auth, t } = this.props;
+    const { subscription, sendingInvite } = this.state;
+    if (
+      !loadingAuth &&
+      auth &&
+      !auth.isAnonymous &&
+      !sendingInvite &&
+      this.userInviteStatus() !== true
+    ) {
+      let permissionButton = null;
+      // If we don't know if the user already requested for notifications
+      if (subscription.permission === null) {
+        permissionButton = (
+          <Button
+            size="small"
+            color="primary"
+            onClick={this.handleSubscribeMeForNotifications}
+          >
+            {t("notifyMeWhenAdminHasAnswered")}
+            <BellIcon />
+          </Button>
+        );
+      } else if (subscription.permission === false) {
+        permissionButton = (
+          <Typography color="error" variant="button">
+            {t("cannotNotifyPermissionDenied")}
+          </Typography>
+        );
+      } else {
+        permissionButton = (
+          <Typography color="primary" variant="button">
+            {t("subscribedForNotifications")}
+          </Typography>
+        );
+      }
 
-        if(token === null){
-          // Need refresh
-          return;
-        }
-        
-        console.log('TOKEN', token);
-      })
+      return (
+        <Grid container justify="flex-end">
+          <Grid item>{permissionButton}</Grid>
+        </Grid>
+      );
+    }
+
+    return null;
   }
+
+  handleSubscribeMeForNotifications = () => {
+    getMessagingToken().then(subscription => {
+      const { token } = subscription;
+      const { user } = this.props;
+      registerMessagingToken(user.key, token).then(() => {
+        this.setState({ subscription });
+      });
+    });
+  };
 }
 
 const styles = theme => ({

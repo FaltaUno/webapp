@@ -25,5 +25,8 @@
       "UY": "Ej.: 99 123 456"
     },
     "buttonLabel": "Confirmar y enviar pedido de participación"
-  }
+  },
+  "notifyMeWhenAdminHasAnswered": "Notificarme cuando me respondan",
+  "cannotNotifyPermissionDenied": "¿Querés ser notificado? Habilitá los permisos que rechazaste.",
+  "subscribedForNotifications": "¡Cuando respondan te nofificaremos al instante!"
 }

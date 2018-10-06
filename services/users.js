@@ -1,9 +1,11 @@
-import { loadDB, normalizeSnap } from "../lib/database";
+import { loadDB, loadServerValue, normalizeSnap } from "../lib/database";
 
-export const allUsers = async function() {
-  const db = await loadDB();
-  const snap = await db
-    .child("users")
+export const getUsersRef = () => {
+  return loadDB().child(`users`);
+};
+
+export const allUsers = async () => {
+  const snap = await getUsersRef()
     .orderByKey()
     .once("value");
   let matches = [];
@@ -13,9 +15,24 @@ export const allUsers = async function() {
   return matches;
 };
 
-export const getUser = async function(key) {
-  const db = await loadDB();
-  const snap = await db.child(`users/${key}`).once("value");
+export const getUser = async key => {
+  const snap = await getUsersRef()
+    .child(key)
+    .once("value");
   return normalizeSnap(snap);
 };
 
+export const unregisterMessagingToken = async (key, token) => {
+  const user = await getUsersRef().child(key);
+  return user.child(`messagingTokens/${token}`).remove();
+};
+
+export const registerMessagingToken = async (key, token) => {
+  const user = await getUsersRef().child(key);
+  const ServerValue = loadServerValue();
+  const newTokenItemKey = user.child(`messagingTokens`).push().key;
+  return user.child(`messagingTokens/${newTokenItemKey}`).set({
+    token,
+    date: ServerValue.TIMESTAMP
+  });
+};

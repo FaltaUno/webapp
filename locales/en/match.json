@@ -25,5 +25,8 @@
       "UY": "e.g.: 99 123 456"
     },
     "buttonLabel": "Confirm and send my invite request"
-  }
+  },
+  "notifyMeWhenAdminHasAnswered": "Nofity me when I receive an answer",
+  "cannotNotifyPermissionDenied": "Want to receive notifications when someone answer? Enable the permission you rejected",
+  "subscribedForNotifications": "We'll notify to you when someone answer!"
 }
