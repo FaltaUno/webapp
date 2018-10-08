@@ -136,7 +136,6 @@ class MatchPage extends React.Component {
       <div>
         <Head>
           <title>{`${match.name}`}</title>
-          <link rel="manifest" href="/static/manifest.json" />
           <meta
             name="description"
             content={t("inviteMetaOgDescription", { matchName: match.name })}
@@ -469,6 +468,9 @@ class MatchPage extends React.Component {
       !sendingInvite &&
       this.userInviteStatus() !== true
     ) {
+      if(subscription.permission === false){
+        return null;
+      }
       let permissionButton = null;
       // If we don't know if the user already requested for notifications
       if (subscription.permission === null) {
@@ -482,12 +484,12 @@ class MatchPage extends React.Component {
             <BellIcon />
           </Button>
         );
-      } else if (subscription.permission === false) {
-        permissionButton = (
-          <Typography color="error" variant="button">
-            {t("cannotNotifyPermissionDenied")}
-          </Typography>
-        );
+      // } else if (subscription.permission === false) {
+      //   permissionButton = (
+      //     <Typography color="error" variant="button">
+      //       {t("cannotNotifyPermissionDenied")}
+      //     </Typography>
+      //   );
       } else {
         permissionButton = (
           <Typography color="primary" variant="button">
@@ -514,9 +516,11 @@ class MatchPage extends React.Component {
         user.key,
         token
       ).then(() => {
-        registerMessagingToken(user.key, token).then(() => {
-          this.setState({ subscription });
-        });
+        if(token !== null){
+          registerMessagingToken(user.key, token).then(() => {
+            this.setState({ subscription });
+          });
+        }
       })
     });
   };

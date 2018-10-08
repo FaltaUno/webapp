@@ -14,7 +14,7 @@ messaging.setBackgroundMessageHandler(payload => {
   const notificationTitle = notificationData.title || "Falta Uno!";
   const notificationOptions = {
     body: notificationData.body || "Llegó una notificación",
-    icon: notificationData.icon || "static/favicon-96x96.png",
+    icon: notificationData.icon || "https://falta-uno-webapp.now.sh/static/favicon-96x96.png",
     tag: notificationData.tag || "notification",
     image: notificationData.image || "",
     renotify: notificationData.renotify || false,

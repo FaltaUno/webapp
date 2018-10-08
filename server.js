@@ -1,4 +1,6 @@
 const express = require("express");
+// const https = require("https");
+// const fs = require('fs');
 const path = require("path");
 const next = require("next");
 const i18nextMiddleware = require("i18next-express-middleware");
@@ -57,10 +59,21 @@ i18nInstance
 
         server.use(routesHandler);
 
-        server.listen(3000, err => {
-          if (err) throw err;
-          console.log("> Ready on http://localhost:3000");
-        });
+        // if(! dev){
+          server.listen(3000, err => {
+            if (err) throw err;
+            console.log("> Ready on http://localhost:3000");
+          });
+        // } else {
+        //   const privateKey = fs.readFileSync("/usr/local/etc/httpd/server.key", 'utf8');
+        //   const certificate = fs.readFileSync("/usr/local/etc/httpd/server.crt", 'utf8');
+        //   const httpsServer = https.createServer({ key: privateKey, cert: certificate }, server)
+
+        //   httpsServer.listen(3443, err => {
+        //     if (err) throw err;
+        //     console.log("> Ready on https://localhost:3443");
+        //   });
+        // }
       })
       .catch(ex => {
         console.error(ex.stack);

@@ -54,6 +54,8 @@ const withApp = PageComponent =>
               name="viewport"
               content="width=device-width,initial-scale=1,shrink-to-fit=no"
             />
+            <link rel="manifest" href="/static/manifest.json" />
+            <link rel="shortcut icon" type="image/png" href="/static/favicon-16x16.png"/>
           </Head>
           <Header
             loadingAuth={this.state.loadingAuth}
