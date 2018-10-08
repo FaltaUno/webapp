@@ -24,6 +24,7 @@ import { Marker } from "react-google-maps";
 import DirectionsIcon from "mdi-material-ui/Directions";
 import EmailIcon from "mdi-material-ui/Email";
 import BellIcon from "mdi-material-ui/Bell";
+import PhoneIcon from "mdi-material-ui/Phone";
 import WhatsappIcon from "mdi-material-ui/Whatsapp";
 
 import { withI18next } from "../hocs/withI18next";
@@ -38,9 +39,9 @@ import {
 import withApp from "../hocs/withApp";
 import MapView from "../components/MapView";
 
-import { formatNumber, parseNumber } from "libphonenumber-js";
+import { format, formatNumber, parseNumber } from "libphonenumber-js";
 
-import { requestInvite, getInvites } from "../services/invites";
+import { requestInvite, getInvites, getInviteRef } from "../services/invites";
 import { getMatch, onMatchChanged } from "../services/matches";
 import {
   getUser,
@@ -105,6 +106,22 @@ class MatchPage extends React.Component {
     });
   }
 
+  subscribeForInviteChanges = user => {
+    const { invites } = this.state;
+    for (let index in invites) {
+      let invite = invites[index];
+      if (invite.userKey === user.key) {
+        getInviteRef(invite.key).child('approved').on('value', snap => {
+          let invites = [...this.state.invites]
+          invites[index].approved = snap.val()
+          this.setState({ invites });
+        });
+        return
+      }
+    }
+    return;
+  }
+
   componentWillReceiveProps(nextProps) {
     const { auth, user } = nextProps;
     // When the user is loaded, if she has contactInfo defined, we set it as default
@@ -114,6 +131,8 @@ class MatchPage extends React.Component {
         if (contactInfo) {
           this.setState({ contactInfoPhone: contactInfo.phone });
         }
+
+        this.subscribeForInviteChanges(user);
       }
     }
   }
@@ -130,6 +149,7 @@ class MatchPage extends React.Component {
 
     const requestInviteButton = this.getInviteButton();
     const subscribeMeForNotifications = this.getSubscribeMeButton();
+    const adminContactInfo = this.getAdminContactInfo();
     const url = `${process.env.BASE_URL}${asPath}`;
     //TODO: for <head> see _document.js https://github.com/zeit/next.js/#custom-document
     return (
@@ -202,6 +222,7 @@ class MatchPage extends React.Component {
                   <Grid item>{requestInviteButton}</Grid>
                 </Grid>
                 {subscribeMeForNotifications}
+                {adminContactInfo}
               </CardContent>
             </Card>
             <Card className={classes.card}>
@@ -468,7 +489,7 @@ class MatchPage extends React.Component {
       !sendingInvite &&
       this.userInviteStatus() !== true
     ) {
-      if(subscription.permission === false){
+      if (subscription.permission === false) {
         return null;
       }
       let permissionButton = null;
@@ -484,12 +505,12 @@ class MatchPage extends React.Component {
             <BellIcon />
           </Button>
         );
-      // } else if (subscription.permission === false) {
-      //   permissionButton = (
-      //     <Typography color="error" variant="button">
-      //       {t("cannotNotifyPermissionDenied")}
-      //     </Typography>
-      //   );
+        // } else if (subscription.permission === false) {
+        //   permissionButton = (
+        //     <Typography color="error" variant="button">
+        //       {t("cannotNotifyPermissionDenied")}
+        //     </Typography>
+        //   );
       } else {
         permissionButton = (
           <Typography color="primary" variant="button">
@@ -516,7 +537,7 @@ class MatchPage extends React.Component {
         user.key,
         token
       ).then(() => {
-        if(token !== null){
+        if (token !== null) {
           registerMessagingToken(user.key, token).then(() => {
             this.setState({ subscription });
           });
@@ -524,6 +545,50 @@ class MatchPage extends React.Component {
       })
     });
   };
+
+  getAdminContactInfo = () => {
+    const { loadingAuth, auth, t } = this.props;
+    const { subscription, sendingInvite } = this.state;
+    if (
+      !loadingAuth &&
+      auth &&
+      !auth.isAnonymous &&
+      !sendingInvite &&
+      this.userInviteStatus() === true
+    ) {
+      const { creator } = this.state;
+      const phoneNumber = format(creator.phone, "E.164");
+      const whatsappPhoneNumber = phoneNumber.substr(1); // No "+" sign
+      return (<Grid container direction="column" alignItems="center">
+        <Grid item>
+          <Typography variant="subheading">{t(`adminContactInfoLabel`)}</Typography>
+        </Grid>
+        <Grid item>
+          <Grid container>
+            <Grid item>
+              <Button color="primary" variant="raised" href={`https://wa.me/${whatsappPhoneNumber}`} target="_blank">
+                <WhatsappIcon></WhatsappIcon>
+                {t(`sendWhatsappMessage`)}
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button color="primary" href={`tel:${phoneNumber}`}>
+                <PhoneIcon></PhoneIcon>
+                {t(`makePhoneCall`)}
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button color="primary" href={`mailto:${creator.email}`}>
+                <EmailIcon></EmailIcon>
+                {t(`sendEmail`)}
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>)
+    }
+    return null;
+  }
 }
 
 const styles = theme => ({

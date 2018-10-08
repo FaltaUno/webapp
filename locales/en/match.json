@@ -28,5 +28,9 @@
   },
   "notifyMeWhenAdminHasAnswered": "Nofity me when I receive an answer",
   "cannotNotifyPermissionDenied": "Want to receive notifications when someone answer? Enable the permission you rejected",
-  "subscribedForNotifications": "We'll notify to you when someone answer!"
+  "subscribedForNotifications": "We'll notify to you when someone answer!",
+  "adminContactInfoLabel": "You can contact with the administrador through these channels",
+  "sendWhatsappMessage": "Whatsapp",
+  "makePhoneCall": "Phone",
+  "sendEmail": "Email"
 }

@@ -28,5 +28,9 @@
   },
   "notifyMeWhenAdminHasAnswered": "Notificarme cuando me respondan",
   "cannotNotifyPermissionDenied": "¿Querés ser notificado? Habilitá los permisos que rechazaste.",
-  "subscribedForNotifications": "¡Cuando respondan te nofificaremos al instante!"
+  "subscribedForNotifications": "¡Cuando respondan te nofificaremos al instante!",
+  "adminContactInfoLabel": "Podés contactarte con el organizador a través de estas vías",
+  "sendWhatsappMessage": "Whatsapp",
+  "makePhoneCall": "Teléfono",
+  "sendEmail": "Correo"
 }
