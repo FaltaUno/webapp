@@ -67,6 +67,7 @@ class MatchPage extends React.Component {
         creator,
         invites: allInvites,
         openContactInfoDialog: false,
+        contactInfoEmail: undefined,
         contactInfoPhone: {
           country: "AR",
           phone: ""
@@ -92,14 +93,13 @@ class MatchPage extends React.Component {
     onMessagingTokenRefresh(subscription => {
       const { token } = subscription;
       const { user } = this.props;
-      unregisterMessagingToken(
-        user.key,
-        this.state.subscription.token
-      ).then(() => {
-        registerMessagingToken(user.key, token).then(() => {
-          this.setState({ subscription });
-        });
-      });
+      unregisterMessagingToken(user.key, this.state.subscription.token).then(
+        () => {
+          registerMessagingToken(user.key, token).then(() => {
+            this.setState({ subscription });
+          });
+        }
+      );
     });
     onMessagingMessage(payload => {
       console.log(payload);
@@ -111,25 +111,27 @@ class MatchPage extends React.Component {
     for (let index in invites) {
       let invite = invites[index];
       if (invite.userKey === user.key) {
-        getInviteRef(invite.key).child('approved').on('value', snap => {
-          let invites = [...this.state.invites]
-          invites[index].approved = snap.val()
-          this.setState({ invites });
-        });
-        return
+        getInviteRef(invite.key)
+          .child("approved")
+          .on("value", snap => {
+            let invites = [...this.state.invites];
+            invites[index].approved = snap.val();
+            this.setState({ invites });
+          });
+        return;
       }
     }
     return;
-  }
+  };
 
   componentWillReceiveProps(nextProps) {
     const { auth, user } = nextProps;
     // When the user is loaded, if she has contactInfo defined, we set it as default
     if (auth.isAnonymous !== this.props.auth.isAnonymous) {
       if (!auth.isAnonymous) {
-        const { contactInfo } = user;
+        const { contactInfo, email } = user;
         if (contactInfo) {
-          this.setState({ contactInfoPhone: contactInfo.phone });
+          this.setState({ contactInfoPhone: contactInfo.phone, contactInfoEmail: email });
         }
 
         this.subscribeForInviteChanges(user);
@@ -275,7 +277,7 @@ class MatchPage extends React.Component {
 
     if (!loadingAuth && auth && !sendingInvite) {
       if (auth.isAnonymous || this.userInviteStatus() === null) {
-        const { openContactInfoDialog, contactInfoPhone } = this.state;
+        const { openContactInfoDialog, contactInfoPhone, contactInfoEmail } = this.state;
         const { country, phone } = contactInfoPhone;
         button = (
           <div>
@@ -300,13 +302,17 @@ class MatchPage extends React.Component {
                   {t("contactInfo.description")}
                 </DialogContentText>
                 <TextField
-                  disabled
                   margin="normal"
                   id="email"
                   label={t("contactInfo.emailLabel")}
-                  value={user.email}
+                  value={contactInfoEmail}
+                  onChange={event => {
+                    this.setState({ contactInfoEmail: event.target.value })
+                  }}
+                  error={this.emailIsNotValid(contactInfoEmail)}
                   type="email"
                   fullWidth
+                  required
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -367,7 +373,9 @@ class MatchPage extends React.Component {
               </DialogContent>
               <DialogActions>
                 <Button
-                  disabled={this.phoneNumberIsNotValid(contactInfoPhone)}
+                  disabled={
+                    this.formIsNotValid(contactInfoEmail, contactInfoPhone)
+                  }
                   color="primary"
                   variant="raised"
                   size="large"
@@ -440,12 +448,21 @@ class MatchPage extends React.Component {
 
   phoneNumberIsNotValid = phoneNumber => {
     if (phoneNumber.phone) {
-      const parsed = parseNumber(phoneNumber.phone, phoneNumber.country);
+      const parsed = parseNumber(String(phoneNumber.phone), phoneNumber.country);
       const { country, phone } = parsed;
       return !phone;
     }
     return false;
   };
+
+  emailIsNotValid = email => {
+    let emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return !emailRegex.test(String(email).toLowerCase());
+  };
+
+  formIsNotValid = (email, phoneNumber) => {
+    return this.emailIsNotValid(email) || this.phoneNumberIsNotValid(phoneNumber)
+  }
 
   formatPhoneNumber = phoneNumber => {
     if (!phoneNumber) {
@@ -463,15 +480,16 @@ class MatchPage extends React.Component {
     return this.doRequestInvite(
       match,
       this.props.user,
+      this.state.contactInfoEmail,
       this.state.contactInfoPhone,
       this.state.creator
     );
   };
 
-  async doRequestInvite(match, user, phone, matchCreator) {
+  async doRequestInvite(match, user, email, phone, matchCreator) {
     // Va ahora en el open dialog
     this.setState({ sendingInvite: true });
-    const invite = await requestInvite(match, user, phone, matchCreator);
+    const invite = await requestInvite(match, user, email, phone, matchCreator);
     const invites = this.state.invites.slice();
     invites.push(invite);
     this.setState({ sendingInvite: false, invites });
@@ -533,16 +551,13 @@ class MatchPage extends React.Component {
     getMessagingToken().then(subscription => {
       const { token } = subscription;
       const { user } = this.props;
-      unregisterMessagingToken(
-        user.key,
-        token
-      ).then(() => {
+      unregisterMessagingToken(user.key, token).then(() => {
         if (token !== null) {
           registerMessagingToken(user.key, token).then(() => {
             this.setState({ subscription });
           });
         }
-      })
+      });
     });
   };
 
@@ -559,36 +574,45 @@ class MatchPage extends React.Component {
       const { creator } = this.state;
       const phoneNumber = format(creator.phone, "E.164");
       const whatsappPhoneNumber = phoneNumber.substr(1); // No "+" sign
-      return (<Grid container direction="column" alignItems="center">
-        <Grid item>
-          <Typography variant="subheading">{t(`adminContactInfoLabel`)}</Typography>
-        </Grid>
-        <Grid item>
-          <Grid container>
-            <Grid item>
-              <Button color="primary" variant="raised" href={`https://wa.me/${whatsappPhoneNumber}`} target="_blank">
-                <WhatsappIcon></WhatsappIcon>
-                {t(`sendWhatsappMessage`)}
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button color="primary" href={`tel:${phoneNumber}`}>
-                <PhoneIcon></PhoneIcon>
-                {t(`makePhoneCall`)}
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button color="primary" href={`mailto:${creator.email}`}>
-                <EmailIcon></EmailIcon>
-                {t(`sendEmail`)}
-              </Button>
+      return (
+        <Grid container direction="column" alignItems="center">
+          <Grid item>
+            <Typography variant="subheading">
+              {t(`adminContactInfoLabel`)}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Grid container>
+              <Grid item>
+                <Button
+                  color="primary"
+                  variant="raised"
+                  href={`https://wa.me/${whatsappPhoneNumber}`}
+                  target="_blank"
+                >
+                  <WhatsappIcon />
+                  {t(`sendWhatsappMessage`)}
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button color="primary" href={`tel:${phoneNumber}`}>
+                  <PhoneIcon />
+                  {t(`makePhoneCall`)}
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button color="primary" href={`mailto:${creator.email}`}>
+                  <EmailIcon />
+                  {t(`sendEmail`)}
+                </Button>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
-      </Grid>)
+      );
     }
     return null;
-  }
+  };
 }
 
 const styles = theme => ({
